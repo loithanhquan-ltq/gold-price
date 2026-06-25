@@ -96,53 +96,69 @@ def build_chart_b64(history: list) -> str | None:
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         import matplotlib.dates as mdates
+        from matplotlib.ticker import FuncFormatter
 
         recent = history[-7:]
         if not recent:
             return None
 
-        dates = [date.fromisoformat(h["date"]) for h in recent]
+        dates       = [date.fromisoformat(h["date"]) for h in recent]
         sjc_prices  = [h.get("sjc_sell") for h in recent]
         intl_prices = [h.get("intl_price") for h in recent]
 
-        fig, ax1 = plt.subplots(figsize=(10, 4))
-        fig.patch.set_facecolor("#1a1a1a")
-        ax1.set_facecolor("#1a1a1a")
+        BG, CARD, GRID = "#0d1117", "#161b22", "#21262d"
+        GOLD, BLUE, TEXT = "#f59e0b", "#58a6ff", "#8b949e"
+
+        fig, ax1 = plt.subplots(figsize=(10, 4.2))
+        fig.patch.set_facecolor(BG)
+        ax1.set_facecolor(BG)
         ax2 = ax1.twinx()
 
-        if any(p for p in sjc_prices if p):
-            vals = [p / 1_000_000 if p else None for p in sjc_prices]
-            ax1.plot(dates, vals, color="#e6a817", lw=2, marker="o", ms=4,
-                     label="SJC (triệu VND/lượng)")
-            ax1.set_ylabel("SJC (triệu VND/lượng)", color="#e6a817", fontsize=10)
-            ax1.tick_params(axis="y", labelcolor="#e6a817")
+        has_sjc  = any(p for p in sjc_prices if p)
+        has_intl = any(p for p in intl_prices if p)
 
-        if any(p for p in intl_prices if p):
-            ax2.plot(dates, intl_prices, color="#2196F3", lw=2, marker="o", ms=4,
-                     label="XAU/USD")
-            ax2.set_ylabel("XAU/USD ($/troy oz)", color="#2196F3", fontsize=10)
-            ax2.tick_params(axis="y", labelcolor="#2196F3")
+        if has_sjc:
+            vals = [p / 1_000_000 if p else None for p in sjc_prices]
+            ax1.plot(dates, vals, color=GOLD, lw=2.5, marker="o", ms=5,
+                     markerfacecolor=GOLD, label="SJC (triệu ₫/lượng)", zorder=3)
+            ax1.fill_between(dates, vals, alpha=0.1, color=GOLD)
+            ax1.set_ylabel("SJC (triệu VND/lượng)", color=GOLD, fontsize=9)
+            ax1.tick_params(axis="y", labelcolor=GOLD, labelsize=8)
+            ax1.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:.0f}"))
+
+        if has_intl:
+            ax2.plot(dates, intl_prices, color=BLUE, lw=2.5, marker="o", ms=5,
+                     markerfacecolor=BLUE, label="XAU/USD", zorder=3)
+            ax2.fill_between(dates, intl_prices, alpha=0.08, color=BLUE)
+            ax2.set_ylabel("XAU/USD ($/troy oz)", color=BLUE, fontsize=9)
+            ax2.tick_params(axis="y", labelcolor=BLUE, labelsize=8)
+            ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x:,.0f}"))
 
         for ax in (ax1, ax2):
-            ax.tick_params(axis="x", colors="#999")
-            ax.spines[:].set_color("#444")
+            ax.tick_params(axis="x", colors=TEXT, labelsize=8)
+            for spine in ax.spines.values():
+                spine.set_color(GRID)
 
         ax1.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
-        ax1.grid(axis="y", color="#2a2a2a", linestyle="--", lw=0.8)
-        fig.autofmt_xdate()
+        ax1.xaxis.set_major_locator(mdates.DayLocator())
+        ax1.grid(axis="y", color=GRID, linestyle="--", lw=0.8, alpha=0.7)
+        ax1.set_axisbelow(True)
+        fig.autofmt_xdate(rotation=25, ha="right")
 
         lines1, labels1 = ax1.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
         if lines1 or lines2:
             ax1.legend(lines1 + lines2, labels1 + labels2,
-                       facecolor="#2a2a2a", labelcolor="#ccc", fontsize=9, loc="upper left")
+                       facecolor=CARD, edgecolor=GRID, labelcolor=TEXT,
+                       fontsize=9, loc="upper left", framealpha=0.95)
 
-        fig.suptitle("Giá Vàng — 7 Ngày Gần Nhất", fontsize=12, fontweight="bold", color="#eee")
-        plt.tight_layout()
+        fig.suptitle("Diễn biến giá vàng — 7 ngày gần nhất",
+                     fontsize=11, fontweight="bold", color="#e2e8f0", y=1.01)
+        plt.tight_layout(pad=1.2)
 
         buf = io.BytesIO()
-        plt.savefig(buf, format="png", dpi=120, bbox_inches="tight",
-                    facecolor=fig.get_facecolor())
+        plt.savefig(buf, format="png", dpi=130, bbox_inches="tight",
+                    facecolor=BG, edgecolor="none")
         plt.close(fig)
         buf.seek(0)
         return base64.b64encode(buf.read()).decode()
@@ -152,127 +168,238 @@ def build_chart_b64(history: list) -> str | None:
 
 
 # ---------------------------------------------------------------------------
-# Email
+# Email templates — all inline styles, placeholders use %%NAME%% to avoid
+# any conflict with CSS braces or Python str.format()
 # ---------------------------------------------------------------------------
 
-EMAIL_HTML = """<!DOCTYPE html>
-<html lang="vi"><head><meta charset="UTF-8">
-<style>
-body{font-family:Arial,sans-serif;background:#f0f0f0;margin:0;padding:16px}
-.c{max-width:620px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.12)}
-.h{background:linear-gradient(135deg,#e6a817,#c8860a);color:#fff;padding:28px 24px;text-align:center}
-.h h1{margin:0 0 4px;font-size:22px}.h p{margin:0;font-size:14px;opacity:.88}
-.s{padding:20px 24px;border-bottom:1px solid #eee}
-.t{font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.8px;margin:0 0 14px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{text-align:left;padding:7px 10px;background:#f7f7f7;color:#999;font-size:11px;text-transform:uppercase}
-td{padding:10px;border-top:1px solid #f0f0f0;color:#333}
-.up{color:#27ae60;font-weight:700}.down{color:#e74c3c;font-weight:700}.neu{color:#999}
-.stale{color:#e67e22;font-size:12px;font-style:italic}
-.cs{padding:20px 24px}.cs img{width:100%;border-radius:8px;display:block}
-.f{padding:16px 24px;text-align:center;font-size:11px;color:#bbb;background:#fafafa}
-</style></head><body><div class="c">
-<div class="h"><h1>Bảng Giá Vàng Hôm Nay</h1><p>{date_str}</p></div>
+_EMAIL_HTML = """\
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0d1117;font-family:'Segoe UI',Tahoma,Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#0d1117">
+<tr><td align="center" style="padding:24px 12px;">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
-<div class="s"><div class="t">🇻🇳 Vàng SJC — VND / Lượng</div>
-{sjc_block}
-</div>
+  <tr><td style="background:linear-gradient(160deg,#1c0e00 0%,#3b1f00 50%,#1c0e00 100%);
+                 border-radius:16px 16px 0 0;padding:36px 32px 30px;text-align:center;
+                 border-bottom:2px solid #f59e0b;">
+    <div style="font-size:44px;line-height:1;margin-bottom:14px;">🥇</div>
+    <h1 style="margin:0 0 10px;color:#f59e0b;font-size:26px;font-weight:800;
+               letter-spacing:2px;text-transform:uppercase;">Bảng Giá Vàng Hôm Nay</h1>
+    <p style="margin:0;color:#d4a017;font-size:15px;">%%WEEKDAY%% &mdash; %%DATE%%</p>
+  </td></tr>
 
-<div class="s"><div class="t">🌐 Vàng Thế Giới — USD / Troy oz</div>
-{intl_block}
-</div>
+  %%SJC_BLOCK%%
 
-{chart_block}
+  %%INTL_BLOCK%%
 
-<div class="f">Gửi lúc {send_time} • Nguồn: giavang.doji.vn &amp; Yahoo Finance</div>
-</div></body></html>"""
+  %%CHART_BLOCK%%
 
-SJC_BLOCK = """<table>
-<tr><th>Loại</th><th>Giá mua</th><th>Giá bán</th><th>Thay đổi (bán)</th></tr>
-<tr><td>SJC 1 Lượng{stale}</td><td>{buy}</td><td>{sell}</td><td class="{css}">{change}</td></tr>
-</table>"""
+  <tr><td style="background:#161b22;border-radius:0 0 16px 16px;padding:20px 32px;
+                 text-align:center;border-top:1px solid #30363d;">
+    <p style="margin:0 0 5px;color:#8b949e;font-size:12px;">
+      Gửi lúc %%TIME%% ICT &nbsp;&bull;&nbsp; Nguồn: giavang.doji.vn &amp; Yahoo Finance / CoinGecko
+    </p>
+    <p style="margin:0;color:#484f58;font-size:11px;font-style:italic;">
+      Thông tin chỉ mang tính tham khảo, không phải lời khuyên đầu tư.
+    </p>
+  </td></tr>
 
-INTL_BLOCK = """<table>
-<tr><th>Giá</th><th>Cao nhất</th><th>Thấp nhất</th><th>Thay đổi</th></tr>
-<tr><td>{price}{stale}</td><td>{high}</td><td>{low}</td><td class="{css}">{change}</td></tr>
-</table>"""
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+
+_SJC_OK = """\
+<tr><td style="background:#161b22;padding:24px 32px;border-bottom:1px solid #21262d;">
+  <p style="margin:0 0 16px;color:#f59e0b;font-size:11px;font-weight:700;
+            text-transform:uppercase;letter-spacing:2px;">🇻🇳 &nbsp;Vàng SJC trong nước</p>
+  <table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="width:48%;vertical-align:top;padding-right:6px;">
+      <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
+                 padding:18px;text-align:center;">
+        <div style="color:#8b949e;font-size:10px;text-transform:uppercase;
+                   letter-spacing:1px;margin-bottom:8px;">Giá Mua</div>
+        <div style="color:#58a6ff;font-size:18px;font-weight:800;line-height:1.3;">%%SJC_BUY%%</div>
+        <div style="color:#484f58;font-size:10px;margin-top:5px;">VND / lượng</div>
+      </div>
+    </td>
+    <td style="width:4%;"></td>
+    <td style="width:48%;vertical-align:top;padding-left:6px;">
+      <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
+                 padding:18px;text-align:center;">
+        <div style="color:#8b949e;font-size:10px;text-transform:uppercase;
+                   letter-spacing:1px;margin-bottom:8px;">Giá Bán</div>
+        <div style="color:#f59e0b;font-size:18px;font-weight:800;line-height:1.3;">%%SJC_SELL%%</div>
+        <div style="color:#484f58;font-size:10px;margin-top:5px;">VND / lượng</div>
+      </div>
+    </td>
+  </tr>
+  </table>
+  <div style="margin-top:10px;padding:11px 16px;background:#0d1117;border:1px solid #21262d;
+             border-radius:8px;text-align:center;">
+    <span style="color:#8b949e;font-size:11px;">Chênh lệch mua/bán: </span>
+    <span style="color:#e2e8f0;font-size:13px;font-weight:700;">%%SJC_SPREAD%%</span>
+  </div>
+  <div style="margin-top:8px;padding:11px 16px;background:#0d1117;border:1px solid #21262d;
+             border-radius:8px;text-align:center;">
+    <span style="color:%%SJC_CC%%;font-size:15px;font-weight:700;">%%SJC_ARROW%% %%SJC_CHANGE%%</span>
+    <span style="color:#8b949e;font-size:11px;margin-left:6px;">so với hôm qua (giá bán)</span>
+  </div>
+</td></tr>"""
+
+_INTL_OK = """\
+<tr><td style="background:#161b22;padding:24px 32px;border-bottom:1px solid #21262d;">
+  <p style="margin:0 0 16px;color:#f59e0b;font-size:11px;font-weight:700;
+            text-transform:uppercase;letter-spacing:2px;">🌐 &nbsp;Vàng thế giới (XAU/USD)</p>
+  <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
+             padding:22px;text-align:center;margin-bottom:10px;">
+    <div style="color:#8b949e;font-size:10px;text-transform:uppercase;
+               letter-spacing:1px;margin-bottom:8px;">Giá Hiện Tại</div>
+    <div style="color:#f59e0b;font-size:30px;font-weight:800;line-height:1.2;">%%INTL_PRICE%%</div>
+    <div style="color:#484f58;font-size:10px;margin-top:5px;">USD / troy oz</div>
+  </div>
+  <table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="width:48%;vertical-align:top;padding-right:6px;">
+      <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
+                 padding:14px;text-align:center;">
+        <div style="color:#8b949e;font-size:10px;margin-bottom:6px;">↑ Cao nhất</div>
+        <div style="color:#3fb950;font-size:14px;font-weight:700;">%%INTL_HIGH%%</div>
+      </div>
+    </td>
+    <td style="width:4%;"></td>
+    <td style="width:48%;vertical-align:top;padding-left:6px;">
+      <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
+                 padding:14px;text-align:center;">
+        <div style="color:#8b949e;font-size:10px;margin-bottom:6px;">↓ Thấp nhất</div>
+        <div style="color:#f85149;font-size:14px;font-weight:700;">%%INTL_LOW%%</div>
+      </div>
+    </td>
+  </tr>
+  </table>
+  <div style="margin-top:10px;padding:11px 16px;background:#0d1117;border:1px solid #21262d;
+             border-radius:8px;text-align:center;">
+    <span style="color:%%INTL_CC%%;font-size:15px;font-weight:700;">%%INTL_ARROW%% %%INTL_CHANGE%%</span>
+    <span style="color:#8b949e;font-size:11px;margin-left:6px;">so với hôm qua</span>
+  </div>
+</td></tr>"""
+
+_MISSING = """\
+<tr><td style="background:#161b22;padding:24px 32px;border-bottom:1px solid #21262d;">
+  <p style="margin:0 0 12px;color:#f59e0b;font-size:11px;font-weight:700;
+            text-transform:uppercase;letter-spacing:2px;">%%TITLE%%</p>
+  <div style="background:#1a0a0a;border:1px solid #5a1e1e;border-radius:8px;
+             padding:14px;text-align:center;color:#f85149;font-size:13px;">
+    ⚠ Không lấy được dữ liệu hôm nay.
+  </div>
+</td></tr>"""
+
+_CHART_ROW = """\
+<tr><td style="background:#161b22;padding:20px 32px;border-bottom:1px solid #21262d;">
+  <p style="margin:0 0 14px;color:#f59e0b;font-size:11px;font-weight:700;
+            text-transform:uppercase;letter-spacing:2px;">📈 &nbsp;Diễn biến 7 ngày gần nhất</p>
+  <img src="data:image/png;base64,%%B64%%"
+       alt="7-day gold chart"
+       style="width:100%;max-width:536px;border-radius:10px;display:block;">
+</td></tr>"""
 
 EMAIL_TXT = """\
 BẢNG GIÁ VÀNG HÔM NAY — {date_str}
 =========================================
 
 VÀNG SJC (VND / Lượng)
-  Mua     : {sjc_buy}
-  Bán     : {sjc_sell}
-  Thay đổi: {sjc_change}
+  Mua       : {sjc_buy}
+  Bán       : {sjc_sell}
+  Chênh lệch: {sjc_spread}
+  Thay đổi  : {sjc_change}
 
 VÀNG THẾ GIỚI (USD / Troy oz)
-  Giá     : {intl_price}
-  Cao nhất: {intl_high}
-  Thấp nhất: {intl_low}
-  Thay đổi: {intl_change}
+  Giá       : {intl_price}
+  Cao nhất  : {intl_high}
+  Thấp nhất : {intl_low}
+  Thay đổi  : {intl_change}
 
 --
-Gửi lúc {send_time} | Nguồn: giavang.doji.vn & Yahoo Finance
+Gửi lúc {send_time} ICT | Nguồn: giavang.doji.vn & Yahoo Finance / CoinGecko
 """
 
 
 def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
+    WEEKDAYS = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"]
     date_str  = now_local.strftime("%d/%m/%Y")
     send_time = now_local.strftime("%H:%M")
+    weekday   = WEEKDAYS[now_local.weekday()]
 
-    sjc_change, sjc_css = change_info(
-        sjc.sell_price if sjc else None, prev_sjc_sell, fmt_vnd)
-    intl_change, intl_css = change_info(
-        intl.buy_price if intl else None, prev_intl_price, fmt_usd)
+    def _color(css): return {"up": "#3fb950", "down": "#f85149"}.get(css, "#8b949e")
+    def _arrow(css): return {"up": "▲", "down": "▼"}.get(css, "—")
 
+    # SJC section
+    sjc_change, sjc_css = change_info(sjc.sell_price if sjc else None, prev_sjc_sell, fmt_vnd)
     if sjc:
-        sjc_block = SJC_BLOCK.format(
-            stale="", buy=fmt_vnd(sjc.buy_price), sell=fmt_vnd(sjc.sell_price),
-            css=sjc_css, change=sjc_change)
+        spread    = sjc.sell_price - sjc.buy_price
+        sjc_block = (_SJC_OK
+            .replace("%%SJC_BUY%%",    fmt_vnd(sjc.buy_price))
+            .replace("%%SJC_SELL%%",   fmt_vnd(sjc.sell_price))
+            .replace("%%SJC_SPREAD%%", fmt_vnd(spread))
+            .replace("%%SJC_CC%%",     _color(sjc_css))
+            .replace("%%SJC_ARROW%%",  _arrow(sjc_css))
+            .replace("%%SJC_CHANGE%%", sjc_change))
     else:
-        sjc_block = "<p style='color:#e74c3c'>⚠ Không lấy được giá SJC hôm nay.</p>"
+        sjc_block = _MISSING.replace("%%TITLE%%", "🇻🇳 Vàng SJC trong nước")
 
+    # International section
+    intl_change, intl_css = change_info(intl.buy_price if intl else None, prev_intl_price, fmt_usd)
     if intl:
-        intl_block = INTL_BLOCK.format(
-            stale="", price=fmt_usd(intl.buy_price), high=fmt_usd(intl.high),
-            low=fmt_usd(intl.low), css=intl_css, change=intl_change)
+        intl_block = (_INTL_OK
+            .replace("%%INTL_PRICE%%",  fmt_usd(intl.buy_price))
+            .replace("%%INTL_HIGH%%",   fmt_usd(intl.high) if intl.high else "N/A")
+            .replace("%%INTL_LOW%%",    fmt_usd(intl.low) if intl.low else "N/A")
+            .replace("%%INTL_CC%%",     _color(intl_css))
+            .replace("%%INTL_ARROW%%",  _arrow(intl_css))
+            .replace("%%INTL_CHANGE%%", intl_change))
     else:
-        intl_block = "<p style='color:#e74c3c'>⚠ Không lấy được giá vàng thế giới hôm nay.</p>"
+        intl_block = _MISSING.replace("%%TITLE%%", "🌐 Vàng thế giới (XAU/USD)")
 
-    chart_b64 = build_chart_b64(history)
-    chart_block = (f'<div class="cs"><img src="data:image/png;base64,{chart_b64}"></div>'
-                   if chart_b64 else "")
+    # Chart section
+    chart_b64   = build_chart_b64(history)
+    chart_block = _CHART_ROW.replace("%%B64%%", chart_b64) if chart_b64 else ""
 
-    html = (EMAIL_HTML
-            .replace("{date_str}", date_str)
-            .replace("{send_time}", send_time)
-            .replace("{sjc_block}", sjc_block)
-            .replace("{intl_block}", intl_block)
-            .replace("{chart_block}", chart_block))
+    html = (_EMAIL_HTML
+        .replace("%%WEEKDAY%%",     weekday)
+        .replace("%%DATE%%",        date_str)
+        .replace("%%TIME%%",        send_time)
+        .replace("%%SJC_BLOCK%%",   sjc_block)
+        .replace("%%INTL_BLOCK%%",  intl_block)
+        .replace("%%CHART_BLOCK%%", chart_block))
 
     txt = EMAIL_TXT.format(
-        date_str=date_str, send_time=send_time,
+        date_str=date_str,    send_time=send_time,
         sjc_buy=fmt_vnd(sjc.buy_price if sjc else None),
         sjc_sell=fmt_vnd(sjc.sell_price if sjc else None),
+        sjc_spread=fmt_vnd(sjc.sell_price - sjc.buy_price) if sjc else "N/A",
         sjc_change=sjc_change,
         intl_price=fmt_usd(intl.buy_price if intl else None),
         intl_high=fmt_usd(intl.high if intl else None),
         intl_low=fmt_usd(intl.low if intl else None),
         intl_change=intl_change)
 
+    recipients = [e.strip() for e in RECIPIENT_EMAIL.split(",") if e.strip()]
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"Giá Vàng Hôm Nay — {date_str}"
-    msg["From"] = GMAIL_USER
-    msg["To"] = RECIPIENT_EMAIL
+    msg["From"]    = GMAIL_USER
+    msg["To"]      = ", ".join(recipients)
     msg.attach(MIMEText(txt, "plain", "utf-8"))
     msg.attach(MIMEText(html, "html", "utf-8"))
 
     ctx = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
         s.login(GMAIL_USER, GMAIL_APP_PASSWORD)
-        s.sendmail(GMAIL_USER, RECIPIENT_EMAIL, msg.as_string())
-    logger.info("Email sent to %s", RECIPIENT_EMAIL)
+        s.sendmail(GMAIL_USER, recipients, msg.as_string())
+    logger.info("Email sent to %s", ", ".join(recipients))
 
 
 # ---------------------------------------------------------------------------
