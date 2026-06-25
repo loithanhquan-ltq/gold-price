@@ -135,7 +135,9 @@ def build_chart_b64(history: list) -> str | None:
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         import matplotlib.dates as mdates
-        from matplotlib.ticker import FuncFormatter
+        import matplotlib.ticker as mticker
+        import numpy as np
+        import math
 
         recent = history[-7:]
         if not recent:
@@ -145,63 +147,167 @@ def build_chart_b64(history: list) -> str | None:
         sjc_prices  = [h.get("sjc_sell")   or float("nan") for h in recent]
         intl_prices = [h.get("intl_price") or float("nan") for h in recent]
 
-        BG, GRID = "#ffffff", "#e5e7eb"
-        NAVY, GOLD, TEXT = "#1e3a5f", "#b45309", "#374151"
+        # --- Palette ---
+        BG       = "#ffffff"
+        GRID     = "#e5e7eb"
+        NAVY     = "#1e3a5f"   # SJC line — deep navy, matches email header
+        AMBER    = "#b45309"   # XAU/USD line — amber/gold accent
+        TICK_CLR = "#6b7280"   # axis tick labels
+        TEXT     = "#374151"   # legend text
+        SUBTEXT  = "#9ca3af"   # subtitle / secondary
 
-        fig, ax1 = plt.subplots(figsize=(10, 4.2))
+        fig, ax1 = plt.subplots(figsize=(10, 4))
         fig.patch.set_facecolor(BG)
-        ax1.set_facecolor("#f9fafb")
+        ax1.set_facecolor(BG)
         ax2 = ax1.twinx()
 
-        import math
-        has_sjc  = any(not math.isnan(p) for p in sjc_prices)
-        has_intl = any(not math.isnan(p) for p in intl_prices)
+        # Convert SJC to millions; build numpy arrays for easy NaN handling
+        sjc_m    = np.array(
+            [p / 1_000_000 if not math.isnan(p) else float("nan") for p in sjc_prices],
+            dtype=float,
+        )
+        intl_arr = np.array(intl_prices, dtype=float)
 
+        has_sjc  = bool(np.any(~np.isnan(sjc_m)))
+        has_intl = bool(np.any(~np.isnan(intl_arr)))
+
+        # --- SJC line (left axis) ---
         if has_sjc:
-            vals = [p / 1_000_000 if not math.isnan(p) else float("nan") for p in sjc_prices]
-            ax1.plot(dates, vals, color=NAVY, lw=2, marker="o", ms=4,
-                     markerfacecolor=NAVY, label="SJC (triệu ₫/lượng)", zorder=3)
-            ax1.fill_between(dates, vals, alpha=0.07, color=NAVY)
-            ax1.set_ylabel("SJC (triệu VND/lượng)", color=NAVY, fontsize=9)
-            ax1.tick_params(axis="y", labelcolor=NAVY, labelsize=8)
-            ax1.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:.0f}"))
+            sjc_mask   = ~np.isnan(sjc_m)
+            sjc_dates  = [d for d, m in zip(dates, sjc_mask) if m]
+            sjc_vals   = sjc_m[sjc_mask]
+            sjc_base   = float(np.nanmin(sjc_m))
 
+            ax1.plot(
+                sjc_dates, sjc_vals,
+                color=NAVY, lw=1.5, linestyle="-",
+                marker="o", ms=4,
+                markerfacecolor=NAVY, markeredgecolor=NAVY, markeredgewidth=0,
+                label="SJC (VND / lượng)", zorder=3,
+            )
+            ax1.fill_between(
+                sjc_dates, sjc_vals, sjc_base,
+                alpha=0.10, color=NAVY, zorder=2,
+            )
+            # Annotate last valid data point
+            ax1.annotate(
+                f"{sjc_vals[-1]:.0f}M",
+                xy=(sjc_dates[-1], sjc_vals[-1]),
+                xytext=(5, 0), textcoords="offset points",
+                fontsize=7.5, color=NAVY, fontweight="bold",
+                va="center", ha="left", fontfamily="monospace",
+            )
+            ax1.set_ylabel(
+                "SJC (triệu VND / lượng)",
+                color=NAVY, fontsize=8.5, labelpad=8,
+            )
+            ax1.tick_params(axis="y", labelcolor=TICK_CLR, labelsize=8,
+                            length=3, width=0.6)
+            ax1.yaxis.set_major_formatter(
+                mticker.FuncFormatter(lambda x, _: f"{x:.0f}")
+            )
+        else:
+            ax1.set_yticks([])
+            ax1.set_ylabel("")
+
+        # --- XAU/USD line (right axis) ---
         if has_intl:
-            ax2.plot(dates, intl_prices, color=GOLD, lw=2, marker="s", ms=4,
-                     markerfacecolor=GOLD, label="XAU/USD", zorder=3)
-            ax2.fill_between(dates, intl_prices, alpha=0.06, color=GOLD)
-            ax2.set_ylabel("XAU/USD ($/troy oz)", color=GOLD, fontsize=9)
-            ax2.tick_params(axis="y", labelcolor=GOLD, labelsize=8)
-            ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x:,.0f}"))
+            intl_mask  = ~np.isnan(intl_arr)
+            intl_dates = [d for d, m in zip(dates, intl_mask) if m]
+            intl_vals  = intl_arr[intl_mask]
+            intl_base  = float(np.nanmin(intl_arr))
 
-        for ax in (ax1, ax2):
-            ax.tick_params(axis="x", colors=TEXT, labelsize=8)
-            for spine in ax.spines.values():
-                spine.set_color(GRID)
-                spine.set_linewidth(0.8)
+            ax2.plot(
+                intl_dates, intl_vals,
+                color=AMBER, lw=1.5, linestyle="-",
+                marker="o", ms=4,
+                markerfacecolor=AMBER, markeredgecolor=AMBER, markeredgewidth=0,
+                label="XAU/USD", zorder=3,
+            )
+            ax2.fill_between(
+                intl_dates, intl_vals, intl_base,
+                alpha=0.10, color=AMBER, zorder=2,
+            )
+            # Annotate last valid data point (offset left so it sits inside axes)
+            ax2.annotate(
+                f"${intl_vals[-1]:,.0f}",
+                xy=(intl_dates[-1], intl_vals[-1]),
+                xytext=(-5, 0), textcoords="offset points",
+                fontsize=7.5, color=AMBER, fontweight="bold",
+                va="center", ha="right", fontfamily="monospace",
+            )
+            ax2.set_ylabel(
+                "XAU/USD ($ / troy oz)",
+                color=AMBER, fontsize=8.5, labelpad=8,
+            )
+            ax2.tick_params(axis="y", labelcolor=TICK_CLR, labelsize=8,
+                            length=3, width=0.6)
+            ax2.yaxis.set_major_formatter(
+                mticker.FuncFormatter(lambda x, _: f"${x:,.0f}")
+            )
+        else:
+            ax2.set_yticks([])
+            ax2.set_ylabel("")
 
+        # --- Grid: horizontal dashed only, no vertical clutter ---
+        ax1.grid(axis="y", color=GRID, linestyle="--", lw=0.7, zorder=0)
+        ax1.grid(axis="x", visible=False)
+        ax2.grid(visible=False)
+        ax1.set_axisbelow(True)
+
+        # --- Date axis: "DD/MM" labels, minimal 20° rotation ---
         ax1.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
         ax1.xaxis.set_major_locator(mdates.DayLocator())
-        ax1.grid(axis="y", color=GRID, linestyle="-", lw=0.8)
-        ax1.grid(axis="x", color=GRID, linestyle=":", lw=0.5)
-        ax1.set_axisbelow(True)
-        fig.autofmt_xdate(rotation=25, ha="right")
+        ax1.tick_params(axis="x", colors=TICK_CLR, labelsize=8,
+                        length=3, width=0.6)
+        plt.setp(ax1.xaxis.get_majorticklabels(), rotation=20, ha="right")
 
-        lines1, labels1 = ax1.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
+        # --- Spines: remove top; keep others thin and light ---
+        for ax in (ax1, ax2):
+            ax.spines["top"].set_visible(False)
+            ax.spines["left"].set_color(GRID)
+            ax.spines["left"].set_linewidth(0.6)
+            ax.spines["right"].set_color(GRID)
+            ax.spines["right"].set_linewidth(0.6)
+            ax.spines["bottom"].set_color(GRID)
+            ax.spines["bottom"].set_linewidth(0.6)
+
+        # --- Legend: combined, compact, inside upper-left ---
+        lines1, lbl1 = ax1.get_legend_handles_labels()
+        lines2, lbl2 = ax2.get_legend_handles_labels()
         if lines1 or lines2:
-            ax1.legend(lines1 + lines2, labels1 + labels2,
-                       facecolor=BG, edgecolor=GRID, labelcolor=TEXT,
-                       fontsize=9, loc="upper left", framealpha=1.0)
+            leg = ax1.legend(
+                lines1 + lines2, lbl1 + lbl2,
+                loc="upper left",
+                fontsize=7.5,
+                frameon=True,
+                facecolor=BG,
+                edgecolor=GRID,
+                labelcolor=TEXT,
+                framealpha=0.92,
+                borderpad=0.5,
+                handlelength=1.2,
+                handletextpad=0.4,
+            )
+            leg.get_frame().set_linewidth(0.6)
 
-        fig.suptitle("Gold Price — 7-Day Trend  |  SJC (VND) & XAU/USD",
-                     fontsize=10, fontweight="bold", color=TEXT, y=1.01,
-                     fontfamily="monospace")
-        plt.tight_layout(pad=1.2)
+        # --- Subtitle: date range inside chart, centered at top ---
+        if dates:
+            d_start  = dates[0].strftime("%d/%m")
+            d_end    = dates[-1].strftime("%d/%m")
+            subtitle = f"{d_start} – {d_end}  ·  {len(dates)} ngày"
+            ax1.text(
+                0.5, 0.97, subtitle,
+                transform=ax1.transAxes,
+                fontsize=7.5, color=SUBTEXT,
+                ha="center", va="top", style="italic",
+            )
+
+        plt.tight_layout(pad=0.8)
 
         buf = io.BytesIO()
-        plt.savefig(buf, format="png", dpi=130, bbox_inches="tight",
-                    facecolor=BG, edgecolor=GRID)
+        plt.savefig(buf, format="png", dpi=130,
+                    bbox_inches="tight", facecolor=BG, edgecolor="none")
         plt.close(fig)
         buf.seek(0)
         return base64.b64encode(buf.read()).decode()
