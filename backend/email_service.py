@@ -85,16 +85,18 @@ def send_daily_email(
     html_body = env.get_template("email.html").render(**ctx_vars)
     text_body = env.get_template("email.txt").render(**ctx_vars)
 
+    recipients = [addr.strip() for addr in RECIPIENT_EMAIL.split(",") if addr.strip()]
+
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"Giá Vàng Hôm Nay — {now_local.strftime('%d/%m/%Y')}"
     msg["From"] = GMAIL_USER
-    msg["To"] = RECIPIENT_EMAIL
+    msg["To"] = GMAIL_USER
     msg.attach(MIMEText(text_body, "plain", "utf-8"))
     msg.attach(MIMEText(html_body, "html", "utf-8"))
 
     ssl_ctx = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ssl_ctx) as server:
         server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
-        server.sendmail(GMAIL_USER, RECIPIENT_EMAIL, msg.as_string())
+        server.sendmail(GMAIL_USER, recipients, msg.as_string())
 
-    logger.info("Email sent to %s for %s", RECIPIENT_EMAIL, today)
+    logger.info("Email sent to %d recipient(s) for %s", len(recipients), today)
