@@ -210,13 +210,23 @@ def build_chart_b64(history: list) -> str | None:
             sjc_vals  = sjc_m[sjc_bool]
             # #3 — fill anchored to period-start price, not series minimum
             sjc_base  = float(sjc_vals[0])
+            sjc_floor = float(sjc_vals.min()) - (float(sjc_vals.max()) - float(sjc_vals.min())) * 0.05
 
             ax_sjc.plot(sjc_dates, sjc_vals,
                         color=NAVY, lw=1.5, marker="o", ms=4,
                         markerfacecolor=NAVY, markeredgecolor=NAVY, markeredgewidth=0,
                         label="SJC (triệu VND / lượng)", zorder=3)
-            ax_sjc.fill_between(sjc_dates, sjc_vals, sjc_base,
-                                alpha=0.12, color=NAVY, zorder=2)
+            ax_sjc.fill_between(sjc_dates, sjc_vals, sjc_floor,
+                                alpha=0.08, color=NAVY, zorder=2)
+            ax_sjc.axhline(sjc_base, color=NAVY, lw=0.8, ls="--", alpha=0.45, zorder=1)
+            _trans_sjc = mtransforms.blended_transform_factory(
+                ax_sjc.transAxes, ax_sjc.transData)
+            ax_sjc.text(
+                0.02, sjc_base, f"Open: {sjc_base:.0f}",
+                transform=_trans_sjc,
+                fontsize=7, color=NAVY, alpha=0.65, va="center", ha="left",
+                bbox=dict(facecolor=BG, edgecolor="none", alpha=0.85, pad=1.5),
+            )
 
             # #6 — last-price label above dot with leader line
             ax_sjc.annotate(
@@ -247,15 +257,24 @@ def build_chart_b64(history: list) -> str | None:
 
         # --- XAU/USD panel ---
         if has_intl:
-            # #3 — fill anchored to period-start price
-            intl_base = float(intl_vals[0])
+            intl_base  = float(intl_vals[0])
+            intl_floor = float(intl_vals.min()) - (float(intl_vals.max()) - float(intl_vals.min())) * 0.05
 
             ax_intl.plot(intl_dates, intl_vals,
                          color=INTL_CLR, lw=1.5, marker="o", ms=4,
                          markerfacecolor=INTL_CLR, markeredgecolor=INTL_CLR,
                          markeredgewidth=0, label="XAU/USD", zorder=3)
-            ax_intl.fill_between(intl_dates, intl_vals, intl_base,
-                                 alpha=0.12, color=INTL_CLR, zorder=2)
+            ax_intl.fill_between(intl_dates, intl_vals, intl_floor,
+                                 alpha=0.08, color=INTL_CLR, zorder=2)
+            ax_intl.axhline(intl_base, color=INTL_CLR, lw=0.8, ls="--", alpha=0.45, zorder=1)
+            _trans_intl = mtransforms.blended_transform_factory(
+                ax_intl.transAxes, ax_intl.transData)
+            ax_intl.text(
+                0.02, intl_base, f"Open: ${intl_base:,.0f}",
+                transform=_trans_intl,
+                fontsize=7, color=INTL_CLR, alpha=0.65, va="center", ha="left",
+                bbox=dict(facecolor=BG, edgecolor="none", alpha=0.85, pad=1.5),
+            )
 
             # #6 — last-price label above dot with leader line
             ax_intl.annotate(
