@@ -14,6 +14,7 @@ import sys
 import io
 import base64
 from datetime import datetime, date, timedelta
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -333,7 +334,7 @@ _CHART_ROW = """\
   </td></tr>
   </table>
   <div style="padding:16px 28px;">
-    <img src="data:image/png;base64,%%B64%%"
+    <img src="cid:goldchart@tracker"
          alt="7-day gold chart"
          style="width:100%;max-width:544px;display:block;border:1px solid #e5e7eb;">
   </div>
@@ -396,9 +397,11 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
     else:
         intl_block = _MISSING.replace("%%TITLE%%", "🌐 Vàng thế giới (XAU/USD)")
 
-    # Chart section
+    # Chart section — generate PNG bytes; embed as CID attachment (data: URIs are
+    # blocked by Gmail and most clients, but cid: references work universally)
     chart_b64   = build_chart_b64(history)
-    chart_block = _CHART_ROW.replace("%%B64%%", chart_b64) if chart_b64 else ""
+    chart_bytes = base64.b64decode(chart_b64) if chart_b64 else None
+    chart_block = _CHART_ROW if chart_bytes else ""
 
     html = (_EMAIL_HTML
         .replace("%%WEEKDAY%%",     weekday)
@@ -420,17 +423,28 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
         intl_change=intl_change)
 
     recipients = [e.strip() for e in RECIPIENT_EMAIL.split(",") if e.strip()]
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"Giá Vàng Hôm Nay — {date_str}"
-    msg["From"]    = GMAIL_USER
-    msg["To"]      = ", ".join(recipients)
-    msg.attach(MIMEText(txt, "plain", "utf-8"))
-    msg.attach(MIMEText(html, "html", "utf-8"))
+
+    # multipart/related wraps the HTML + inline image so cid: references resolve
+    msg_related = MIMEMultipart("related")
+    msg_alt = MIMEMultipart("alternative")
+    msg_alt.attach(MIMEText(txt, "plain", "utf-8"))
+    msg_alt.attach(MIMEText(html, "html", "utf-8"))
+    msg_related.attach(msg_alt)
+
+    if chart_bytes:
+        img = MIMEImage(chart_bytes, "png")
+        img.add_header("Content-ID", "<goldchart@tracker>")
+        img.add_header("Content-Disposition", "inline", filename="chart.png")
+        msg_related.attach(img)
+
+    msg_related["Subject"] = f"Giá Vàng Hôm Nay — {date_str}"
+    msg_related["From"]    = GMAIL_USER
+    msg_related["To"]      = ", ".join(recipients)
 
     ctx = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
         s.login(GMAIL_USER, GMAIL_APP_PASSWORD)
-        s.sendmail(GMAIL_USER, recipients, msg.as_string())
+        s.sendmail(GMAIL_USER, recipients, msg_related.as_string())
     logger.info("Email sent to %s", ", ".join(recipients))
 
 
