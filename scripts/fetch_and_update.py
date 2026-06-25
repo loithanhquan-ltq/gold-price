@@ -13,7 +13,7 @@ import ssl
 import sys
 import io
 import base64
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -58,6 +58,43 @@ def upsert_history(history: list, entry: dict) -> list:
     history = [h for h in history if h["date"] != entry["date"]]
     history.append(entry)
     history.sort(key=lambda x: x["date"])
+    return history[-MAX_HISTORY:]
+
+
+def backfill_history(history: list, days: int = 8) -> list:
+    """Seed missing days with XAU/USD history from CoinGecko market_chart API.
+    Only runs when history is sparse; SJC is left null for backfilled days."""
+    import requests
+    try:
+        resp = requests.get(
+            "https://api.coingecko.com/api/v3/coins/tether-gold/market_chart",
+            params={"vs_currency": "usd", "days": str(days), "interval": "daily"},
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        prices = resp.json().get("prices", [])  # [[timestamp_ms, price], ...]
+    except Exception as e:
+        logger.warning("History backfill failed: %s", e)
+        return history
+
+    existing = {h["date"] for h in history}
+    added = 0
+    for ts_ms, price in prices:
+        d = datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc).date()
+        date_str = str(d)
+        if date_str not in existing and 500 < price < 20_000:
+            history.append({
+                "date": date_str,
+                "sjc_buy": None, "sjc_sell": None,
+                "intl_price": round(price, 2),
+                "intl_high": None, "intl_low": None,
+            })
+            existing.add(date_str)
+            added += 1
+
+    history.sort(key=lambda x: x["date"])
+    logger.info("Backfilled %d day(s) of XAU/USD history from CoinGecko", added)
     return history[-MAX_HISTORY:]
 
 
@@ -457,6 +494,10 @@ def main():
     today = now.date()
     data = load_data()
     history = data.get("history", [])
+
+    # Seed missing historical days on first runs so the chart has enough data
+    if len(history) < 7:
+        history = backfill_history(history)
 
     # Fetch previous day's prices for day-over-day comparison
     yesterday_entries = [h for h in history if h["date"] < str(today)]
