@@ -19,9 +19,7 @@
   .down { color: #e74c3c; font-weight: 700; }
   .neutral { color: #999; }
   .stale { color: #e67e22; font-size: 12px; font-style: italic; }
-  .chart-section { padding: 20px 24px; }
-  .chart-section img { width: 100%; max-width: 572px; border-radius: 8px; display: block; }
-  .footer { padding: 16px 24px; text-align: center; font-size: 11px; color: #bbb; background: #fafafa; }
+.footer { padding: 16px 24px; text-align: center; font-size: 11px; color: #bbb; background: #fafafa; }
 </style>
 </head>
 <body>
@@ -65,13 +63,6 @@
     <p style="color:#e74c3c; font-size:14px;">⚠ Không lấy được giá vàng thế giới hôm nay.</p>
     {% endif %}
   </div>
-
-  {% if chart_b64 %}
-  <div class="chart-section">
-    <div class="section-title" style="margin-bottom:12px;">📈 Biểu Đồ 7 Ngày</div>
-    <img src="data:image/png;base64,{{ chart_b64 }}" alt="7-day gold price chart">
-  </div>
-  {% endif %}
 
   <div class="footer">
     Gửi lúc {{ send_time }} • Nguồn: giavang.doji.vn &amp; Yahoo Finance (GC=F)

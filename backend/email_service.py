@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 
 from backend import repository
 from backend.config import GMAIL_USER, GMAIL_APP_PASSWORD, RECIPIENT_EMAIL, TZ
-from backend.chart import generate_chart_base64
 from backend.scrapers.base import PriceResult
 
 logger = logging.getLogger(__name__)
@@ -61,19 +60,12 @@ def send_daily_email(
         _fmt_usd,
     )
 
-    try:
-        chart_b64 = generate_chart_base64(db)
-    except Exception as e:
-        logger.warning("Chart generation failed: %s", e)
-        chart_b64 = None
-
     now_local = datetime.now(TZ)
     ctx_vars = dict(
         date_str=now_local.strftime("%d/%m/%Y"),
         send_time=now_local.strftime("%H:%M"),
         sjc_stale=sjc_stale,
         intl_stale=intl_stale,
-        chart_b64=chart_b64,
         sjc=dict(
             buy_fmt=_fmt_vnd(sjc.buy_price if sjc else None),
             sell_fmt=_fmt_vnd(sjc.sell_price if sjc else None),

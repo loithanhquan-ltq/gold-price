@@ -1,4 +1,3 @@
-let chart = null;
 let toastTimer = null;
 
 const fmtVND = v =>
@@ -40,95 +39,12 @@ async function loadCurrentPrices() {
     document.getElementById("last-updated").textContent =
       "Cập nhật: " + new Date(data.fetched_at).toLocaleString("vi-VN");
 
-    await loadChart();
     await loadStatus();
   } catch (e) {
     showToast("Lỗi tải giá: " + e.message, 5000);
   } finally {
     setBtn("btn-refresh", "Cập Nhật Giá", false);
   }
-}
-
-async function loadChart() {
-  const res = await fetch("/api/prices/history?days=7");
-  if (!res.ok) return;
-  const rows = await res.json();
-
-  const sjcRows  = rows.filter(r => r.source === "SJC");
-  const intlRows = rows.filter(r => r.source === "INTERNATIONAL");
-  const dates    = [...new Set(rows.map(r => r.price_date))].sort();
-
-  function byDate(arr, field) {
-    const map = {};
-    arr.forEach(r => { map[r.price_date] = r[field]; });
-    return dates.map(d => map[d] ?? null);
-  }
-
-  const ctx = document.getElementById("priceChart").getContext("2d");
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: dates.map(d => {
-        const [y, m, day] = d.split("-");
-        return `${day}/${m}`;
-      }),
-      datasets: [
-        {
-          label: "SJC Bán (triệu VND)",
-          data: byDate(sjcRows, "sell_price").map(v => v != null ? v / 1_000_000 : null),
-          borderColor: "#e6a817",
-          backgroundColor: "rgba(230,168,23,0.08)",
-          yAxisID: "y",
-          tension: 0.35,
-          spanGaps: true,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        },
-        {
-          label: "XAU/USD",
-          data: byDate(intlRows, "buy_price"),
-          borderColor: "#2196F3",
-          backgroundColor: "rgba(33,150,243,0.08)",
-          yAxisID: "y2",
-          tension: 0.35,
-          spanGaps: true,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      interaction: { mode: "index", intersect: false },
-      scales: {
-        y: {
-          position: "left",
-          ticks: { color: "#e6a817", font: { size: 11 } },
-          grid: { color: "#1f1f1f" },
-        },
-        y2: {
-          position: "right",
-          ticks: { color: "#2196F3", font: { size: 11 } },
-          grid: { drawOnChartArea: false },
-        },
-        x: {
-          ticks: { color: "#666", font: { size: 11 } },
-          grid: { color: "#1a1a1a" },
-        },
-      },
-      plugins: {
-        legend: { labels: { color: "#aaa", font: { size: 12 }, boxWidth: 14 } },
-        tooltip: {
-          backgroundColor: "#1e1e1e",
-          titleColor: "#ccc",
-          bodyColor: "#eee",
-          borderColor: "#333",
-          borderWidth: 1,
-        },
-      },
-    },
-  });
 }
 
 async function loadStatus() {
