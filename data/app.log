@@ -1,0 +1,14 @@
+2026-06-25 14:00:17,955 [WARNING] backend.main: Missing required config: ['GMAIL_USER', 'GMAIL_APP_PASSWORD', 'RECIPIENT_EMAIL', 'API_TOKEN'] — email/auth features will fail
+2026-06-25 14:00:17,976 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-06-25 14:00:17,976 [INFO] apscheduler.scheduler: Added job "run_daily_job" to job store "default"
+2026-06-25 14:00:17,977 [INFO] apscheduler.scheduler: Scheduler started
+2026-06-25 14:00:17,977 [INFO] backend.scheduler: Scheduler started — daily email at 07:00 Asia/Ho_Chi_Minh
+2026-06-25 14:00:17,982 [INFO] httpx: HTTP Request: GET http://testserver/api/prices/history?days=1 "HTTP/1.1 200 OK"
+2026-06-25 14:00:17,982 [INFO] apscheduler.scheduler: Scheduler has been shut down
+2026-06-25 14:04:08,344 [WARNING] backend.main: Missing required config: ['GMAIL_USER', 'GMAIL_APP_PASSWORD', 'RECIPIENT_EMAIL', 'API_TOKEN'] — email/auth features will fail
+2026-06-25 14:04:08,346 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-06-25 14:04:08,347 [INFO] apscheduler.scheduler: Added job "run_daily_job" to job store "default"
+2026-06-25 14:04:08,347 [INFO] apscheduler.scheduler: Scheduler started
+2026-06-25 14:04:08,347 [INFO] backend.scheduler: Scheduler started — daily email at 07:00 Asia/Ho_Chi_Minh
+2026-06-25 14:04:08,352 [INFO] httpx: HTTP Request: GET http://testserver/api/prices/history?days=1 "HTTP/1.1 200 OK"
+2026-06-25 14:04:08,353 [INFO] apscheduler.scheduler: Scheduler has been shut down
