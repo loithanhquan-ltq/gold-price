@@ -244,9 +244,12 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
     chart_block = (f'<div class="cs"><img src="data:image/png;base64,{chart_b64}"></div>'
                    if chart_b64 else "")
 
-    html = EMAIL_HTML.format(
-        date_str=date_str, send_time=send_time,
-        sjc_block=sjc_block, intl_block=intl_block, chart_block=chart_block)
+    html = (EMAIL_HTML
+            .replace("{date_str}", date_str)
+            .replace("{send_time}", send_time)
+            .replace("{sjc_block}", sjc_block)
+            .replace("{intl_block}", intl_block)
+            .replace("{chart_block}", chart_block))
 
     txt = EMAIL_TXT.format(
         date_str=date_str, send_time=send_time,
