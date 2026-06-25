@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theo Dõi Giá Vàng</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>const APP_TOKEN = "__API_TOKEN__";</script>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Theo Dõi Giá Vàng</h1>
+      <span id="last-updated" class="subtitle">Đang tải...</span>
+    </div>
+    <div class="header-actions">
+      <div id="status-dot" class="dot dot-pending" title="Scheduler"></div>
+    </div>
+  </header>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">🇻🇳 Vàng SJC</div>
+      <div class="card-unit">VND / Lượng</div>
+      <div class="price-row"><span class="label">Mua</span><span id="sjc-buy" class="price">—</span></div>
+      <div class="price-row"><span class="label">Bán</span><span id="sjc-sell" class="price">—</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🌐 Vàng Thế Giới</div>
+      <div class="card-unit">USD / Troy oz</div>
+      <div class="price-row"><span class="label">Giá</span><span id="intl-price" class="price">—</span></div>
+      <div class="price-row"><span class="label">Cao / Thấp</span><span id="intl-hl" class="price">—</span></div>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-header">Biểu Đồ 7 Ngày</div>
+    <canvas id="priceChart"></canvas>
+  </div>
+
+  <div class="actions">
+    <button id="btn-refresh" onclick="loadCurrentPrices()">Cập Nhật Giá</button>
+    <button id="btn-send" class="btn-secondary" onclick="triggerEmail()">Gửi Email Test</button>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

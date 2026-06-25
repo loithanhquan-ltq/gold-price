@@ -1,0 +1,1001 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="vi" lang="vi">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta http-equiv="content-language" content="vi" />
+  
+    <script src="https://giavang.doji.vn/sites/all/themes/doji_gold/scripts/angular.min.js"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/sites/all/themes/doji_gold/favicon.ico" type="image/x-icon" />
+  <link type="text/css" rel="stylesheet" media="all" href="/modules/node/node.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/modules/system/defaults.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/modules/system/system.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/modules/system/system-menus.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/modules/user/user.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/contrib/cck/theme/content-module.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/contrib/ctools/css/ctools.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/contrib/date/date.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/contrib/date/date_popup/themes/datepicker.1.7.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/contrib/date/date_popup/themes/jquery.timeentry.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/contrib/filefield/filefield.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/custom/doji/misc/doji.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/custom/doji/doji_charts/misc/doji_charts.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/custom/doji/doji_get/misc/doji_get.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/custom/doji/doji_gold_price/misc/doji_gold_price.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/contrib/format_number/format_number.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/custom/doji/doji_statistics/misc/doji_statistics.css?I" />
+<link type="text/css" rel="stylesheet" media="all" href="/sites/all/modules/contrib/cck/modules/fieldgroup/fieldgroup.css?I" />
+<link type="text/css" rel="stylesheet" media="screen,projection" href="/sites/all/themes/doji_gold/css/doji_gold.css?I" />
+<link type="text/css" rel="stylesheet" media="screen,projection" href="/sites/all/themes/doji_gold/style.css?I" />
+<link type="text/css" rel="stylesheet" media="screen,projection" href="/sites/all/themes/doji_gold/css/duyen.css?I" />
+<link type="text/css" rel="stylesheet" media="screen,projection" href="/sites/all/themes/doji_gold/css/admin-cuahang/stylesheets/store-style.css?I" />
+  <!--[if lte IE 7]>
+    <link rel="stylesheet" href="/sites/all/libraries/doji_gold/doji_gold/ie.css" type="text/css" media="screen, projection">
+    <link href="/sites/all/themes/doji_gold/css/ie.css" rel="stylesheet"  type="text/css"  media="screen, projection" />
+      <![endif]-->
+  <!--[if lte IE 6]>
+    <link href="/sites/all/themes/doji_gold/css/ie6.css" rel="stylesheet"  type="text/css"  media="screen, projection" />
+      <![endif]-->
+</head>
+</head>
+
+<body class="front not-logged-in page-doji no-sidebars col-1 "  ng-app="front"  >
+
+  <div id="container"ng-controller="home" >
+  <div id="header" class="clear-block">
+              <h1 id="logo">
+          <a href="/" title="giavang.doji.vn">giavang.doji.vn</a>
+        </h1>
+        </div>
+  
+  <div class="col-center span-24"  >
+    <div id="col-center-top" class="clear-block" data-ng-init= Start()>
+      <a href="/" title="" class="site-logo2 active"><img src='/sites/all/themes/doji_gold/logo2.png' alt='' border='0' /></a>
+        <div id="col-center-bottom" class="clear clear-block">
+        <div id="col-center-middle" class="clear-block">
+            <div class="content_home">
+                <div class="content-middle">
+                                      <div class="tabs"><ul class="tabs primary">
+<li class="active" ><a href="/trangchu.html" class="active">Trang chủ</a></li>
+<li ><a href="/bieudo.html">Biểu đồ</a></li>
+<li ><a href="/doji/tintuc">Tin Tức</a></li>
+<li ><a href="/doji/diadiem">Địa Điểm</a></li>
+</ul>
+</div><div id="block-block-1" class="block block-block region-odd odd region-count-1 count-1">
+
+
+  <div class="content">
+    <div id="giavangtrongnuoc" class="clear-block block-bg border-gray p-10 size-18">
+      <div id="gv-left" class="left width-565 p-t-20 ">            
+      
+  <div id="noitce-message"><ul><li class="first">Cảnh báo:</li></ul>
+    <div class="buttons"><input type="submit" class="form-submit" value="Sửa lại" id="edit-calcel"><input type="submit" class="form-submit" value="Cập nhật" id="edit-submit"></div>
+  </div><div id="gv-left-title" class="clear-block clear p-b-20 line-height-1 p-l-10"><span class="left d-block size-18">Giá vàng trong nước</span></div><div class="ant-home-price"><table class="goldprice-view sticky-enabled">
+ <thead><tr><th class="first"><div class="table_title" >Giá vàng trong nước</div></th><th><div>Mua</div></th><th class="last"><div>Bán</div></th> </tr></thead>
+<tbody>
+ <tr class="odd"><td class="first"><span class="title clear-block clear size-18 normal">SJC -Bán Lẻ</span><span class="sub-title clear size-13 normal">(nghìn/chỉ)</span></td><td class="goldprice-td goldprice-td-0"><div class="item-relative">14,300</div></td><td class="goldprice-td goldprice-td-1"><div class="item-relative">14,600</div></td> </tr>
+ <tr class="even"><td class="first"><span class="title clear-block clear size-18 normal">Kim TT/AVPL</span><span class="sub-title clear size-13 normal">(nghìn/chỉ)</span></td><td class="goldprice-td goldprice-td-0"><div class="item-relative">14,300</div></td><td class="goldprice-td goldprice-td-1"><div class="item-relative">14,600</div></td> </tr>
+ <tr class="odd"><td class="first"><span class="title clear-block clear size-18 normal">NHẪN TRÒN 9999 HƯNG THỊNH VƯỢNG</span><span class="sub-title clear size-13 normal">(nghìn/chỉ)</span></td><td class="goldprice-td goldprice-td-0"><div class="item-relative">14,300</div></td><td class="goldprice-td goldprice-td-1"><div class="item-relative">14,600</div></td> </tr>
+ <tr class="even"><td class="first"><span class="title clear-block clear size-18 normal">Nguyên Liệu 99.99</span><span class="sub-title clear size-13 normal"></span></td><td class="goldprice-td goldprice-td-0"><div class="item-relative">13,100</div></td><td class="goldprice-td goldprice-td-1"><div class="item-relative">13,300</div></td> </tr>
+ <tr class="odd"><td class="first"><span class="title clear-block clear size-18 normal">Nguyên Liệu 99.9</span><span class="sub-title clear size-13 normal"></span></td><td class="goldprice-td goldprice-td-0"><div class="item-relative">13,050</div></td><td class="goldprice-td goldprice-td-1"><div class="item-relative">13,250</div></td> </tr>
+ <tr class="even"><td class="first"><span class="title clear-block clear size-18 normal">NỮ TRANG 9999 - BÁN LẺ</span><span class="sub-title clear size-13 normal">(nghìn/chỉ)</span></td><td class="goldprice-td goldprice-td-0"><div class="item-relative">13,700</div></td><td class="goldprice-td goldprice-td-1"><div class="item-relative">14,200</div></td> </tr>
+ <tr class="odd"><td class="first"><span class="title clear-block clear size-18 normal">NỮ TRANG 999 - BÁN LẺ</span><span class="sub-title clear size-13 normal"></span></td><td class="goldprice-td goldprice-td-0"><div class="item-relative">13,650</div></td><td class="goldprice-td goldprice-td-1"><div class="item-relative">14,150</div></td> </tr>
+ <tr class="even"><td class="first"><span class="title clear-block clear size-18 normal">Nữ trang 99                          -    Bán Lẻ</span><span class="sub-title clear size-13 normal"></span></td><td class="goldprice-td goldprice-td-0"><div class="item-relative">13,580</div></td><td class="goldprice-td goldprice-td-1"><div class="item-relative">14,130</div></td> </tr>
+</tbody>
+</table>
+<p class="left p-l-15" style="color:#666666"><span class="update-time size-14">Cập nhập lúc: 09:57 25/06/2026</span></p></div>
+      </div>
+      <div id="gv-right" class="right width-335 ">
+      <div id="chart-view" class="clear-block ">
+        <span class='right-titlte-1 addtext'>(Nghìn/<br/>lượng)</span>
+        <span class='right-subtitlte-1 addtext'>(tg)</span>
+      <div id="chart-container-ant-0" style="width:335px;height:220px"></div></div><div id="chart-view" class="clear-block ">
+        <span class='right-titlte-2 addtext'>(Nghìn/<br/>lượng)</span>
+        <span class='right-subtitlte-2 addtext'>(tg)</span>
+      <div id="chart-container-ant-1" style="width:335px;height:220px"></div></div><div id="chart-view" class="clear-block ">
+        <span class='right-titlte-2 addtext'>(Nghìn/<br/>lượng)</span>
+        <span class='right-subtitlte-2 addtext'>(tg)</span>
+      <div id="chart-container-ant-2" style="width:335px;height:220px"></div></div>
+      </div>      
+    </div>
+  </div>
+  
+</div>
+<div id="block-doji-gia_vang_quoc_te" class="block block-doji region-even even region-count-2 count-2">
+
+
+  <div class="content">
+              <div id="giavangquocte" class="clear-block p-10">
+                <div class="left width-565">                
+                
+                  <div class="size-14" style="color:#666666; margin-top:15px;">Trực tiếp từ: Easy-forex & TPBank</div>
+                </div>
+                <div class="right width-335">
+                <img class='w-100 border-gray' style= width="338" height="239" src='http://www.kitco.com/images/live/gold.gif' />
+                </div>
+              </div>
+            </div>
+  
+</div>
+<div id="block-block-3" class="block block-block region-odd odd region-count-3 count-3">
+
+
+  <div class="content"><form action="/"  accept-charset="UTF-8" method="post" id="doji-show-select-vung">
+<div><div class="form-item" id="edit-area-wrapper">
+ <select name="area" class="form-select" id="edit-area" ><option value="" selected="selected">--Chọn vùng miền--</option><option value="1">Hà Nội</option><option value="3299">Đà Nẵng</option><option value="3300">Hồ Chí Minh</option></select>
+</div>
+<input type="hidden" name="form_build_id" id="form-0PWq0FHvMAT7lmfcSmCiKge1mPfOxAD1H1hfI0gV5XU" value="form-0PWq0FHvMAT7lmfcSmCiKge1mPfOxAD1H1hfI0gV5XU"  />
+<input type="hidden" name="form_id" id="edit-doji-show-select-vung" value="doji_show_select_vung"  />
+
+</div></form>
+<div id="bang-gia-theo-vung-mien"><div class="clear-block"><div class="hn left first">
+    <div class="clear-block block-bg border-gray p-10 size-12">
+      <h2 class="title_bang"> Bảng giá tại Hà Nội</h2><table class="goldprice-view sticky-enabled">
+ <thead><tr><th class="first"><div>Loại</div></th><th><div>Mua vào</div></th><th class="last"><div>Bán ra</div></th> </tr></thead>
+<tbody>
+ <tr class="odd"><td class="label">SJC - Bán Lẻ</td><td>14300</td><td>14600</td> </tr>
+ <tr class="even"><td class="label">Kim TT/AVPL</td><td>14300</td><td>14600</td> </tr>
+ <tr class="odd"><td class="label">NHẪN TRÒN 9999 HƯNG THỊNH VƯỢNG</td><td>14300</td><td>14600</td> </tr>
+ <tr class="even"><td class="label">Nữ trang 99.99 - Bán Lẻ</td><td>13700</td><td>14200</td> </tr>
+ <tr class="odd"><td class="label">Nữ trang 99.9 - Bán Lẻ</td><td>13650</td><td>14150</td> </tr>
+ <tr class="even"><td class="label">Nữ trang 99 - Bán Lẻ</td><td>13580</td><td>14130</td> </tr>
+</tbody>
+</table>
+    
+    </div>
+  </div><div class="dn midle last">
+    <div class="clear-block block-bg border-gray p-10 size-12">
+      <h2 class="title_bang"> Bảng giá tại </h2><table class="goldprice-view sticky-enabled">
+ <thead><tr><th class="first"><div>Loại</div></th><th><div>Mua vào</div></th><th class="last"><div>Bán ra</div></th> </tr></thead>
+<tbody>
+ <tr class="odd"><td class="label">SJC - Bán Lẻ</td><td>14300</td><td>14600</td> </tr>
+ <tr class="even"><td class="label">AVPL - Bán Lẻ</td><td>14300</td><td>14600</td> </tr>
+ <tr class="odd"><td class="label">NHẪN TRÒN 9999 HƯNG THỊNH VƯỢNG</td><td>14300</td><td>14600</td> </tr>
+ <tr class="even"><td class="label">Nữ trang 99.99 - Bán Lẻ</td><td>13700</td><td>14200</td> </tr>
+ <tr class="odd"><td class="label">Nữ trang 99.9 - Bán Lẻ</td><td>13650</td><td>14150</td> </tr>
+ <tr class="even"><td class="label">Nữ trang 99 - Bán Lẻ</td><td>13580</td><td>14130</td> </tr>
+</tbody>
+</table>
+    
+    </div>
+  </div><div class="hcm right last">
+    <div class="clear-block block-bg border-gray p-10 size-12">
+      <h2 class="title_bang"> Bảng giá tại </h2><table class="goldprice-view sticky-enabled">
+ <thead><tr><th class="first"><div>Loại</div></th><th><div>Mua vào</div></th><th class="last"><div>Bán ra</div></th> </tr></thead>
+<tbody>
+ <tr class="odd"><td class="label">SJC - Bán Lẻ</td><td>14300</td><td>14600</td> </tr>
+ <tr class="even"><td class="label">AVPL - Bán Lẻ</td><td>14300</td><td>14600</td> </tr>
+ <tr class="odd"><td class="label">Nhẫn Tròn 9999 Hưng Thịnh Vượng - Bán Lẻ</td><td>14300</td><td>14600</td> </tr>
+ <tr class="even"><td class="label">Nữ trang 99.99 - Bán Lẻ</td><td>13700</td><td>14200</td> </tr>
+ <tr class="odd"><td class="label">Nữ trang 99.9 - Bán Lẻ</td><td>13650</td><td>14150</td> </tr>
+ <tr class="even"><td class="label">Nữ trang 99 - Bán Lẻ</td><td>13580</td><td>14130</td> </tr>
+</tbody>
+</table>
+    
+    </div>
+  </div></div></div></div>
+  
+</div>
+                </div>
+                            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var _gaq = _gaq || [];_gaq.push(["_setAccount", "UA-9205046-10"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
+//--><!]]>
+</script>
+</div>
+  <script type="text/javascript" src="/sites/all/modules/contrib/jquery_update/replace/jquery.min.js?I"></script>
+<script type="text/javascript" src="/misc/drupal.js?I"></script>
+<script type="text/javascript" src="/sites/default/files/languages/vi_28bb260cf1daca8525430a5fb5fa9e61.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/contrib/google_analytics/googleanalytics.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/misc/doji.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_add_user/js/add_user.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_area/js/doji_area.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_cuahang/js/doji_cuahang.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_get/misc/doji_get.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_goldprice_view/misc/doji_goldprice_view.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_gold_price/misc/gold_price.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/contrib/format_number/format_number.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_show/js/doji_show.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_show/js/jquery.bpopup.min.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_statistics/misc/jquery.printElement.min.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_statistics/misc/doji_statistics.js?I"></script>
+<script type="text/javascript" src="/sites/all/themes/doji_gold/scripts/submit_animated.js?I"></script>
+<script type="text/javascript" src="/sites/all/modules/custom/doji/doji_charts/misc/highchart/js/highcharts.src.js?I"></script>
+<script type="text/javascript" src="/misc/tableheader.js?I"></script>
+<script type="text/javascript" src="/sites/all/themes/doji_gold/scripts/general.js?I"></script>
+<script type="text/javascript" src="/sites/all/themes/doji_gold/scripts/jquery.zclip.min.js?I"></script>
+<script type="text/javascript" src="/sites/all/themes/doji_gold/scripts/jquery.mousewheel.js?I"></script>
+<script type="text/javascript" src="/sites/all/themes/doji_gold/scripts/jquery.jscrollpane.min.js?I"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, { "basePath": "/", "googleanalytics": { "trackOutbound": 1, "trackMailto": 1, "trackDownload": 1, "trackDownloadExtensions": "7z|aac|arc|arj|asf|asx|avi|bin|csv|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls|xml|z|zip" }, "doji_gold_price": { "url_currencyrate": "http://vn.easy-forex.com/int/currencyratespage.aspx", "url_exchangerate": "http://public.tpb.vn/doji/ccy.aspx", "url_bieudo_giavang_quocte": "http://www.kitco.com/images/live/gold.gif", "spread": 30, "banle_spread": 0, "banbuon_spread": 0, "click_spread": 1 }, "format_number": { "thousands_sep": ",", "decimal_point": "." } });
+//--><!]]>
+</script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+
+  		$(function() {
+  			var seriesOptions = [],
+  				yAxisOptions = [],
+  				seriesCounter = 0,
+  				colors = Highcharts.getOptions().colors;
+          Highcharts.setOptions({
+            lang: {
+            		//months: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6','Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+            		//weekdays: ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'],
+              	rangeSelectorZoom: '',
+              	rangeSelectorFrom: '',
+              	rangeSelectorTo: '',
+                exportButtonTitle: 'Tải biểu đồ',
+                printButtonTitle: 'In biểu đồ',
+                downloadPDF: 'Tải biểu đồ với kiểu tập tin là :  là PDF',
+                downloadJPEG: 'Tải biểu đồ với kiểu tập tin là :  là JPEG',
+                downloadPNG: 'Tải biểu đồ với kiểu tập tin là :  là PNG',
+                downloadSVG: 'Tải biểu đồ với kiểu tập tin là :  là SVG',
+            }
+          });
+
+  			var options = {
+            chart: {
+  			        renderTo: 'chart-container-ant-0',
+                marginRight: 45,
+                
+                defaultSeriesType: 'line',
+                plotBorderColor: '#c3c3c3',
+                plotBackgroundColor: '#ffffff',
+                backgroundColor: 'none',
+                plotBorderWidth: 1,
+                spacingBottom: 15,
+                 events: {
+                      click: function(e) {
+                       // $.colorbox({iframe:true, width:975, height:575, scrolling:false, href:''});
+                         
+                      }
+                   }
+  			        },
+        		   xAxis: {
+                  type: 'datetime',
+                  showFirstLabel: true,
+                  minRange: 4,
+                  dateTimeLabelFormats: {
+                      second: '%H:%M:%S %d/%m<br>%Y',
+                      minute: '%H:%M',
+                      hour: '%H:%M',
+                      day: '%d/%m',
+                      week: '%d/%m<br>%Y',
+                      month: '%m/%Y',
+                      year: '%Y'
+                  },
+                  tickInterval: 14400000,
+        					title: {
+        					//	text: '24/06/2026 09:57 - 25/06/2026 09:57',
+                    //verticalAlign: 'top',
+      					  },
+            			labels: {
+            				//align: 'left',
+                    style:{
+                      fontSize: '8px',
+                      color: '#959595',
+                    },
+            			},
+        		   },
+      			   yAxis : [{
+      			        title: 'seositetools.net',
+                    startOnTick: false,
+              			showFirstLabel: true,
+                    showLastLabel: true,
+                    gridLineColor: '#FFFFFF',
+                    minorTickInterval: 840,
+                    tickInterval: 840,
+                    
+       min: 142900,
+       max: 147100,
+    
+            			labels: {
+            				align: 'right',
+                    enabled: false,
+            				x: 0,
+            				y: 16,
+            				formatter: function() {
+            					return Highcharts.numberFormat(this.value, 0);
+            				},
+                    style: {
+                      color: '#959595',
+                    }
+            			},
+                  plotLines : [{
+                      value : 143000,
+//                    color : '#FF0000',
+                      color : '#ffffff',
+                      dashStyle : 'Dash',
+                      width : 1,
+                      id: 'line1st',
+                      label : {
+                        align: 'right',
+                				x: 37,
+                				y: 3,
+                        text : '143000',
+                        style : {
+                          fontSize: '9px',
+                          color: '#000000',
+                        },
+            					}
+    				      }, {
+            					value : 146000,
+            					//color : '#00a2ff',
+                      color : '#ffffff',
+            					dashStyle : 'Dash',
+            					width : 1,
+                      id: 'line2nd',
+            					label : {
+            					  align: 'right',
+                				x: 37,
+                				y: 3,
+            						text : '146000',
+                        style : {
+                          fontSize: '9px',
+                          color: '#000000',
+                        },
+            					}
+    				      }]
+
+      			   }, { // right y axis
+            			linkedTo: 0,
+            			gridLineWidth: 0,
+            			opposite: true,
+                  title: 'tvazone',
+                  minorTickInterval: 840,
+                  tickInterval: 840,
+            			showFirstLabel: true,
+                  showLastLabel: true,
+                  
+       min: 142900,
+       max: 147100,
+    
+                  customControl: 'tvazone',
+                  gridCount: 6,
+            			labels: {
+            				align: 'right',
+                    //enabled: false,
+                    step: 0,
+            				x: 35,
+            				y: 0,
+                    style:{
+                      fontSize: '8px',
+                      color: '#959595',
+                    },
+            				formatter: function() {
+            				  if (143000 == this.value || Math.abs(143000 - this.value) < 20 || 146000 == this.value || Math.abs(146000 - this.value) < 20) {
+            				    return '';
+            				  }
+            					return Highcharts.numberFormat(this.value, 0);
+            				}
+            			},
+      			   }],
+  					title : {
+  						text : 'SJC (nghìn/lượng): 143,000/146,000',
+              style: {
+              	color: '#000000',
+              	//fontSize: '16px'
+                fontWeight: 'bold',
+                fontSize: '12px'
+              },
+              align: 'left',
+              x: 0,
+              y: 20,
+              //floating: true,
+  					},
+            subtitle : {
+  						text : 'Biểu đồ 24h',
+              style: {
+              	color: '#000000',
+              	//fontSize: '16px'
+                fontSize: '12px',
+                fontWeight: 'italic',
+              },
+              align: 'left',
+              x: 0,
+              y: 35,
+              //floating: true,
+  					},  
+  			    tooltip: {
+             formatter: function() {
+               return '<b>'+ this.series.name +'</b><br/>'+ this.y + ' (nghìn/lượng)';
+             },
+             crosshairs: [true, true],
+  			    },
+            
+        		legend: {
+        			//layout: 'vertical',
+        			align: 'right',
+        			verticalAlign: ' top ',
+        			x: -40,
+        			y: 15,
+        			floating: true,
+        			borderWidth: 0,
+              style: {
+                fontSize: '12px'
+              }
+        		},
+    
+  			    credits : {
+                		text: '<br /><br />',
+                		href: 'http://giavang.doji.vn',
+                    
+  			    },
+      			navigator : {
+      				enabled : false,
+      			},
+      			plotOptions: {
+      				series: {
+      					marker: {
+      						enabled: false,
+      						states: {
+      							hover: {
+      								enabled: true,
+      								radius: 3
+      							}
+      						}
+      					}
+      				},
+               line: {
+                lineWidth: 2,
+               },
+      			},
+           series: [{
+             name: 'Mua',
+             color: '#FF0000',
+             width : 1,
+             data: [[1782272086000,144000],[1782269829000,144000],[1782272089000,144000],[1782272229000,144000],[1782272515000,144000],[1782272522000,144000],[1782272729000,144000],[1782272731000,144000],[1782351714000,143000],[1782351933000,143000],[1782351935000,143000],[1782352176000,143000],[1782355455000,143000],[1782355457000,143000],[1782356198000,143000],[1782356206000,143000],[1782356221000,143000],[1782356224000,143000],[1782356229000,143000]]
+            }, {
+             name: 'Bán',
+             color: '#00a2ff',
+             width : 1,
+             data: [[1782272086000,147000],[1782269829000,147000],[1782272089000,147000],[1782272229000,147000],[1782272515000,147000],[1782272522000,147000],[1782272729000,147000],[1782272731000,147000],[1782351714000,147000],[1782351933000,147000],[1782351935000,147000],[1782352176000,146000],[1782355455000,146000],[1782355457000,146000],[1782356198000,146000],[1782356206000,146000],[1782356221000,146000],[1782356224000,146000],[1782356229000,146000]]
+        }],
+  			};
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+        chart = new Highcharts.Chart(options);
+  		});
+    
+//--><!]]>
+</script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+
+  		$(function() {
+  			var seriesOptions = [],
+  				yAxisOptions = [],
+  				seriesCounter = 0,
+  				colors = Highcharts.getOptions().colors;
+          Highcharts.setOptions({
+            lang: {
+            		//months: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6','Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+            		//weekdays: ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'],
+              	rangeSelectorZoom: '',
+              	rangeSelectorFrom: '',
+              	rangeSelectorTo: '',
+                exportButtonTitle: 'Tải biểu đồ',
+                printButtonTitle: 'In biểu đồ',
+                downloadPDF: 'Tải biểu đồ với kiểu tập tin là :  là PDF',
+                downloadJPEG: 'Tải biểu đồ với kiểu tập tin là :  là JPEG',
+                downloadPNG: 'Tải biểu đồ với kiểu tập tin là :  là PNG',
+                downloadSVG: 'Tải biểu đồ với kiểu tập tin là :  là SVG',
+            }
+          });
+
+  			var options = {
+            chart: {
+  			        renderTo: 'chart-container-ant-1',
+                marginRight: 45,
+                
+                defaultSeriesType: 'line',
+                plotBorderColor: '#c3c3c3',
+                plotBackgroundColor: '#ffffff',
+                backgroundColor: 'none',
+                plotBorderWidth: 1,
+                spacingBottom: 15,
+                 events: {
+                      click: function(e) {
+                       // $.colorbox({iframe:true, width:975, height:575, scrolling:false, href:''});
+                         
+                      }
+                   }
+  			        },
+        		   xAxis: {
+                  type: 'datetime',
+                  showFirstLabel: true,
+                  minRange: 4,
+                  dateTimeLabelFormats: {
+                      second: '%H:%M:%S %d/%m<br>%Y',
+                      minute: '%H:%M',
+                      hour: '%H:%M',
+                      day: '%d/%m',
+                      week: '%d/%m<br>%Y',
+                      month: '%m/%Y',
+                      year: '%Y'
+                  },
+                  tickInterval: 86400000,
+        					title: {
+        					//	text: '22/06/2026 09:57 - 25/06/2026 09:57',
+                    //verticalAlign: 'top',
+      					  },
+            			labels: {
+            				//align: 'left',
+                    style:{
+                      fontSize: '8px',
+                      color: '#959595',
+                    },
+            			},
+        		   },
+      			   yAxis : [{
+      			        title: 'seositetools.net',
+                    startOnTick: false,
+              			showFirstLabel: true,
+                    showLastLabel: true,
+                    gridLineColor: '#FFFFFF',
+                    minorTickInterval: 1180,
+                    tickInterval: 1180,
+                    
+       min: 142900,
+       max: 148800,
+    
+            			labels: {
+            				align: 'right',
+                    enabled: false,
+            				x: 0,
+            				y: 16,
+            				formatter: function() {
+            					return Highcharts.numberFormat(this.value, 0);
+            				},
+                    style: {
+                      color: '#959595',
+                    }
+            			},
+                  plotLines : [{
+                      value : 143000,
+//                    color : '#FF0000',
+                      color : '#ffffff',
+                      dashStyle : 'Dash',
+                      width : 1,
+                      id: 'line1st',
+                      label : {
+                        align: 'right',
+                				x: 37,
+                				y: 3,
+                        text : '143000',
+                        style : {
+                          fontSize: '9px',
+                          color: '#000000',
+                        },
+            					}
+    				      }, {
+            					value : 146000,
+            					//color : '#00a2ff',
+                      color : '#ffffff',
+            					dashStyle : 'Dash',
+            					width : 1,
+                      id: 'line2nd',
+            					label : {
+            					  align: 'right',
+                				x: 37,
+                				y: 3,
+            						text : '146000',
+                        style : {
+                          fontSize: '9px',
+                          color: '#000000',
+                        },
+            					}
+    				      }]
+
+      			   }, { // right y axis
+            			linkedTo: 0,
+            			gridLineWidth: 0,
+            			opposite: true,
+                  title: 'tvazone',
+                  minorTickInterval: 1180,
+                  tickInterval: 1180,
+            			showFirstLabel: true,
+                  showLastLabel: true,
+                  
+       min: 142900,
+       max: 148800,
+    
+                  customControl: 'tvazone',
+                  gridCount: 6,
+            			labels: {
+            				align: 'right',
+                    //enabled: false,
+                    step: 0,
+            				x: 35,
+            				y: 0,
+                    style:{
+                      fontSize: '8px',
+                      color: '#959595',
+                    },
+            				formatter: function() {
+            				  if (143000 == this.value || Math.abs(143000 - this.value) < 20 || 146000 == this.value || Math.abs(146000 - this.value) < 20) {
+            				    return '';
+            				  }
+            					return Highcharts.numberFormat(this.value, 0);
+            				}
+            			},
+      			   }],
+  					title : {
+  						text : '',
+              style: {
+              	color: '#000000',
+              	//fontSize: '16px'
+                fontWeight: 'bold',
+                fontSize: '12px'
+              },
+              align: 'left',
+              x: 0,
+              y: 20,
+              //floating: true,
+  					},
+            subtitle : {
+  						text : 'Biểu đồ 3 ngày',
+              style: {
+              	color: '#000000',
+              	//fontSize: '16px'
+                fontSize: '12px',
+                fontWeight: 'italic',
+              },
+              align: 'left',
+              x: 0,
+              y: 15,
+              //floating: true,
+  					},  
+  			    tooltip: {
+             formatter: function() {
+               return '<b>'+ this.series.name +'</b><br/>'+ this.y + ' (nghìn/lượng)';
+             },
+             crosshairs: [true, true],
+  			    },
+            
+        		legend: {
+        			//layout: 'vertical',
+        			align: 'right',
+        			verticalAlign: ' top ',
+        			x: -40,
+        			y: 0,
+        			floating: true,
+        			borderWidth: 0,
+              style: {
+                fontSize: '12px'
+              }
+        		},
+    
+  			    credits : {
+                		text: '<br /><br />',
+                		href: 'http://giavang.doji.vn',
+                    
+  			    },
+      			navigator : {
+      				enabled : false,
+      			},
+      			plotOptions: {
+      				series: {
+      					marker: {
+      						enabled: false,
+      						states: {
+      							hover: {
+      								enabled: true,
+      								radius: 3
+      							}
+      						}
+      					}
+      				},
+               line: {
+                lineWidth: 2,
+               },
+      			},
+           series: [{
+             name: 'Mua',
+             color: '#FF0000',
+             width : 1,
+             data: [[1782102229000,145700],[1782095760000,145700],[1782102236000,145000],[1782109623000,145000],[1782109638000,145600],[1782109640000,145600],[1782109653000,145600],[1782109655000,145600],[1782178442000,145600],[1782178668000,145600],[1782178675000,145000],[1782178861000,145000],[1782178870000,145000],[1782180388000,145000],[1782180396000,145000],[1782181907000,145000],[1782181917000,145000],[1782184467000,145000],[1782184469000,145000],[1782187889000,144800],[1782203013000,144000],[1782265385000,144000],[1782272086000,144000],[1782272089000,144000],[1782272229000,144000],[1782272515000,144000],[1782272522000,144000],[1782272729000,144000],[1782272731000,144000],[1782351714000,143000],[1782351933000,143000],[1782351935000,143000],[1782352176000,143000],[1782355455000,143000],[1782355457000,143000],[1782356198000,143000],[1782356206000,143000],[1782356221000,143000],[1782356224000,143000],[1782356230000,143000]]
+            }, {
+             name: 'Bán',
+             color: '#00a2ff',
+             width : 1,
+             data: [[1782102229000,148700],[1782095760000,148700],[1782102236000,148000],[1782109623000,148000],[1782109638000,148600],[1782109640000,148600],[1782109653000,148600],[1782109655000,148600],[1782178442000,148600],[1782178668000,148600],[1782178675000,148000],[1782178861000,148000],[1782178870000,148000],[1782180388000,148000],[1782180396000,148000],[1782181907000,148000],[1782181917000,148000],[1782184467000,148000],[1782184469000,148000],[1782187889000,147800],[1782203013000,147000],[1782265385000,147000],[1782272086000,147000],[1782272089000,147000],[1782272229000,147000],[1782272515000,147000],[1782272522000,147000],[1782272729000,147000],[1782272731000,147000],[1782351714000,147000],[1782351933000,147000],[1782351935000,147000],[1782352176000,146000],[1782355455000,146000],[1782355457000,146000],[1782356198000,146000],[1782356206000,146000],[1782356221000,146000],[1782356224000,146000],[1782356230000,146000]]
+        }],
+  			};
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+        chart = new Highcharts.Chart(options);
+  		});
+    
+//--><!]]>
+</script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+
+  		$(function() {
+  			var seriesOptions = [],
+  				yAxisOptions = [],
+  				seriesCounter = 0,
+  				colors = Highcharts.getOptions().colors;
+          Highcharts.setOptions({
+            lang: {
+            		//months: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6','Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+            		//weekdays: ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'],
+              	rangeSelectorZoom: '',
+              	rangeSelectorFrom: '',
+              	rangeSelectorTo: '',
+                exportButtonTitle: 'Tải biểu đồ',
+                printButtonTitle: 'In biểu đồ',
+                downloadPDF: 'Tải biểu đồ với kiểu tập tin là :  là PDF',
+                downloadJPEG: 'Tải biểu đồ với kiểu tập tin là :  là JPEG',
+                downloadPNG: 'Tải biểu đồ với kiểu tập tin là :  là PNG',
+                downloadSVG: 'Tải biểu đồ với kiểu tập tin là :  là SVG',
+            }
+          });
+
+  			var options = {
+            chart: {
+  			        renderTo: 'chart-container-ant-2',
+                marginRight: 45,
+                
+                defaultSeriesType: 'line',
+                plotBorderColor: '#c3c3c3',
+                plotBackgroundColor: '#ffffff',
+                backgroundColor: 'none',
+                plotBorderWidth: 1,
+                spacingBottom: 15,
+                 events: {
+                      click: function(e) {
+                       // $.colorbox({iframe:true, width:975, height:575, scrolling:false, href:''});
+                         
+                      }
+                   }
+  			        },
+        		   xAxis: {
+                  type: 'datetime',
+                  showFirstLabel: true,
+                  minRange: 4,
+                  dateTimeLabelFormats: {
+                      second: '%H:%M:%S %d/%m<br>%Y',
+                      minute: '%H:%M',
+                      hour: '%H:%M',
+                      day: '%d/%m',
+                      week: '%d/%m<br>%Y',
+                      month: '%m/%Y',
+                      year: '%Y'
+                  },
+                  tickInterval: 86400000,
+        					title: {
+        					//	text: '18/06/2026 09:57 - 25/06/2026 09:57',
+                    //verticalAlign: 'top',
+      					  },
+            			labels: {
+            				//align: 'left',
+                    style:{
+                      fontSize: '8px',
+                      color: '#959595',
+                    },
+            			},
+        		   },
+      			   yAxis : [{
+      			        title: 'seositetools.net',
+                    startOnTick: false,
+              			showFirstLabel: true,
+                    showLastLabel: true,
+                    gridLineColor: '#FFFFFF',
+                    minorTickInterval: 1600,
+                    tickInterval: 1600,
+                    
+       min: 142400,
+       max: 150400,
+    
+            			labels: {
+            				align: 'right',
+                    enabled: false,
+            				x: 0,
+            				y: 16,
+            				formatter: function() {
+            					return Highcharts.numberFormat(this.value, 0);
+            				},
+                    style: {
+                      color: '#959595',
+                    }
+            			},
+                  plotLines : [{
+                      value : 143000,
+//                    color : '#FF0000',
+                      color : '#ffffff',
+                      dashStyle : 'Dash',
+                      width : 1,
+                      id: 'line1st',
+                      label : {
+                        align: 'right',
+                				x: 37,
+                				y: 3,
+                        text : '143000',
+                        style : {
+                          fontSize: '9px',
+                          color: '#000000',
+                        },
+            					}
+    				      }, {
+            					value : 146000,
+            					//color : '#00a2ff',
+                      color : '#ffffff',
+            					dashStyle : 'Dash',
+            					width : 1,
+                      id: 'line2nd',
+            					label : {
+            					  align: 'right',
+                				x: 37,
+                				y: 3,
+            						text : '146000',
+                        style : {
+                          fontSize: '9px',
+                          color: '#000000',
+                        },
+            					}
+    				      }]
+
+      			   }, { // right y axis
+            			linkedTo: 0,
+            			gridLineWidth: 0,
+            			opposite: true,
+                  title: 'tvazone',
+                  minorTickInterval: 1600,
+                  tickInterval: 1600,
+            			showFirstLabel: true,
+                  showLastLabel: true,
+                  
+       min: 142400,
+       max: 150400,
+    
+                  customControl: 'tvazone',
+                  gridCount: 6,
+            			labels: {
+            				align: 'right',
+                    //enabled: false,
+                    step: 0,
+            				x: 35,
+            				y: 0,
+                    style:{
+                      fontSize: '8px',
+                      color: '#959595',
+                    },
+            				formatter: function() {
+            				  if (143000 == this.value || Math.abs(143000 - this.value) < 20 || 146000 == this.value || Math.abs(146000 - this.value) < 20) {
+            				    return '';
+            				  }
+            					return Highcharts.numberFormat(this.value, 0);
+            				}
+            			},
+      			   }],
+  					title : {
+  						text : '',
+              style: {
+              	color: '#000000',
+              	//fontSize: '16px'
+                fontWeight: 'bold',
+                fontSize: '12px'
+              },
+              align: 'left',
+              x: 0,
+              y: 20,
+              //floating: true,
+  					},
+            subtitle : {
+  						text : 'Biểu đồ 1 tuần',
+              style: {
+              	color: '#000000',
+              	//fontSize: '16px'
+                fontSize: '12px',
+                fontWeight: 'italic',
+              },
+              align: 'left',
+              x: 0,
+              y: 15,
+              //floating: true,
+  					},  
+  			    tooltip: {
+             formatter: function() {
+               return '<b>'+ this.series.name +'</b><br/>'+ this.y + ' (nghìn/lượng)';
+             },
+             crosshairs: [true, true],
+  			    },
+            
+        		legend: {
+        			//layout: 'vertical',
+        			align: 'right',
+        			verticalAlign: ' top ',
+        			x: -40,
+        			y: 0,
+        			floating: true,
+        			borderWidth: 0,
+              style: {
+                fontSize: '12px'
+              }
+        		},
+    
+  			    credits : {
+                		text: '<br /><br />',
+                		href: 'http://giavang.doji.vn',
+                    
+  			    },
+      			navigator : {
+      				enabled : false,
+      			},
+      			plotOptions: {
+      				series: {
+      					marker: {
+      						enabled: false,
+      						states: {
+      							hover: {
+      								enabled: true,
+      								radius: 3
+      							}
+      						}
+      					}
+      				},
+               line: {
+                lineWidth: 2,
+               },
+      			},
+           series: [{
+             name: 'Mua',
+             color: '#FF0000',
+             width : 1,
+             data: [[1781776726000,147300],[1781750160000,147300],[1781776729000,147300],[1781776945000,147300],[1781776947000,147300],[1781776952000,147300],[1781833265000,145800],[1781833268000,145800],[1781833273000,145800],[1781833758000,144800],[1781836208000,144800],[1781836219000,144800],[1781839445000,144800],[1781839453000,144300],[1781839501000,144300],[1781839504000,144300],[1781839708000,144300],[1781839718000,144000],[1781843815000,143700],[1781843820000,143700],[1781849113000,143700],[1781849131000,143500],[1781849135000,143500],[1781849148000,143500],[1781849153000,143500],[1781852704000,143500],[1781852711000,142500],[1781922493000,142500],[1781922512000,144200],[1781922544000,144200],[1781922548000,144200],[1782092642000,145700],[1782092646000,145700],[1782092678000,145700],[1782092680000,145700],[1782092704000,145700],[1782092737000,145700],[1782092739000,145700],[1782092761000,145700],[1782092763000,145700],[1782093991000,145700],[1782093993000,145700],[1782094396000,145700],[1782094411000,145700],[1782094416000,145700],[1782102229000,145700],[1782102236000,145000],[1782109623000,145000],[1782109638000,145600],[1782109640000,145600],[1782109653000,145600],[1782109655000,145600],[1782178442000,145600],[1782178668000,145600],[1782178675000,145000],[1782178861000,145000],[1782178870000,145000],[1782180388000,145000],[1782180396000,145000],[1782181907000,145000],[1782181917000,145000],[1782184467000,145000],[1782184469000,145000],[1782187889000,144800],[1782203013000,144000],[1782265385000,144000],[1782272086000,144000],[1782272089000,144000],[1782272229000,144000],[1782272515000,144000],[1782272522000,144000],[1782272729000,144000],[1782272731000,144000],[1782351714000,143000],[1782351933000,143000],[1782351935000,143000],[1782352176000,143000],[1782355455000,143000],[1782355457000,143000],[1782356198000,143000],[1782356206000,143000],[1782356221000,143000],[1782356224000,143000],[1782356230000,143000]]
+            }, {
+             name: 'Bán',
+             color: '#00a2ff',
+             width : 1,
+             data: [[1781776726000,150300],[1781750160000,150300],[1781776729000,150300],[1781776945000,150300],[1781776947000,150300],[1781776952000,150300],[1781833265000,148800],[1781833268000,148800],[1781833273000,148800],[1781833758000,147800],[1781836208000,147800],[1781836219000,147800],[1781839445000,147800],[1781839453000,147300],[1781839501000,147300],[1781839504000,147300],[1781839708000,147300],[1781839718000,147000],[1781843815000,146700],[1781843820000,146700],[1781849113000,146700],[1781849131000,146500],[1781849135000,146500],[1781849148000,146500],[1781849153000,146500],[1781852704000,146500],[1781852711000,146500],[1781922493000,146500],[1781922512000,147200],[1781922544000,147200],[1781922548000,147200],[1782092642000,147700],[1782092646000,147700],[1782092678000,147700],[1782092680000,147700],[1782092704000,148700],[1782092737000,148700],[1782092739000,148700],[1782092761000,148700],[1782092763000,148700],[1782093991000,148700],[1782093993000,148700],[1782094396000,148700],[1782094411000,148700],[1782094416000,148700],[1782102229000,148700],[1782102236000,148000],[1782109623000,148000],[1782109638000,148600],[1782109640000,148600],[1782109653000,148600],[1782109655000,148600],[1782178442000,148600],[1782178668000,148600],[1782178675000,148000],[1782178861000,148000],[1782178870000,148000],[1782180388000,148000],[1782180396000,148000],[1782181907000,148000],[1782181917000,148000],[1782184467000,148000],[1782184469000,148000],[1782187889000,147800],[1782203013000,147000],[1782265385000,147000],[1782272086000,147000],[1782272089000,147000],[1782272229000,147000],[1782272515000,147000],[1782272522000,147000],[1782272729000,147000],[1782272731000,147000],[1782351714000,147000],[1782351933000,147000],[1782351935000,147000],[1782352176000,146000],[1782355455000,146000],[1782355457000,146000],[1782356198000,146000],[1782356206000,146000],[1782356221000,146000],[1782356224000,146000],[1782356230000,146000]]
+        }],
+  			};
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+        chart = new Highcharts.Chart(options);
+  		});
+    
+//--><!]]>
+</script>
+  
+  <button id="popup_window" data-popup-target="#example-popup">Open The Light Weight Popup Modal</button>
+
+<div id="example-popup" class="popup">
+  <div class="popup-body">
+    <h2 class="popup-title">Thông báo</h2>
+    <div class="popup-content">
+
+      <p>Giá vàng DOJI - ứng dụng toàn diện nhất về thị trường vàng đã có trên App Store! Bấm OK để tải ngay!</p>
+     <div class="p_btom"> <a href="https://itunes.apple.com/us/app/gia-vang-doji/id866767924?mt=8"><span id ="ok_tat">Ok </span></a><a href ="javascript:void(0);" id ="p_cancel"><span class="popup-exit"> Bỏ qua</span></a></div>
+    </div>
+  </div>
+
+
+</div>
+<div class="popup-overlay"></div>
+
+
+</body>
+</html>

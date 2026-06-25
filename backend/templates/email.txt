@@ -1,0 +1,24 @@
+BẢNG GIÁ VÀNG HÔM NAY — {{ date_str }}
+=========================================
+
+🇻🇳 VÀNG SJC (VND / Lượng)
+{% if sjc %}
+  Giá mua : {{ sjc.buy_fmt }}
+  Giá bán : {{ sjc.sell_fmt }}
+  Thay đổi: {{ sjc.change_str }}{% if sjc_stale %} (dữ liệu cũ){% endif %}
+{% else %}
+  Không lấy được dữ liệu SJC hôm nay.
+{% endif %}
+
+🌐 VÀNG THẾ GIỚI (USD / Troy oz)
+{% if intl %}
+  Giá     : {{ intl.price_fmt }}
+  Cao nhất: {{ intl.high_fmt }}
+  Thấp nhất: {{ intl.low_fmt }}
+  Thay đổi: {{ intl.change_str }}{% if intl_stale %} (dữ liệu cũ){% endif %}
+{% else %}
+  Không lấy được dữ liệu quốc tế hôm nay.
+{% endif %}
+
+--
+Gửi lúc {{ send_time }} | Nguồn: giavang.doji.vn & Yahoo Finance (GC=F)

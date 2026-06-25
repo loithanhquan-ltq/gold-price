@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theo Dõi Giá Vàng</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Theo Dõi Giá Vàng</h1>
+    <p id="updated-at" class="subtitle">Đang tải...</p>
+  </header>
+
+  <main>
+    <section class="cards">
+      <div class="card" id="card-sjc">
+        <h2>🇻🇳 Vàng SJC</h2>
+        <div class="price-row">
+          <div>
+            <div class="label">Giá mua</div>
+            <div class="price" id="sjc-buy">—</div>
+          </div>
+          <div>
+            <div class="label">Giá bán</div>
+            <div class="price" id="sjc-sell">—</div>
+          </div>
+        </div>
+        <div class="change" id="sjc-change"></div>
+        <div class="unit">VND / Lượng</div>
+      </div>
+
+      <div class="card" id="card-intl">
+        <h2>🌐 Vàng Thế Giới (XAU/USD)</h2>
+        <div class="price-row">
+          <div>
+            <div class="label">Giá</div>
+            <div class="price" id="intl-price">—</div>
+          </div>
+          <div>
+            <div class="label">Cao nhất</div>
+            <div class="price secondary" id="intl-high">—</div>
+          </div>
+          <div>
+            <div class="label">Thấp nhất</div>
+            <div class="price secondary" id="intl-low">—</div>
+          </div>
+        </div>
+        <div class="change" id="intl-change"></div>
+        <div class="unit">USD / Troy oz</div>
+      </div>
+    </section>
+
+    <section class="chart-section">
+      <h2>Biểu Đồ 7 Ngày Gần Nhất</h2>
+      <div class="chart-wrapper">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Cập nhật lúc 10:00 ICT mỗi ngày &nbsp;•&nbsp;
+    Nguồn: <a href="https://giavang.doji.vn" target="_blank">giavang.doji.vn</a>
+    &amp; Yahoo Finance &nbsp;•&nbsp;
+    <a href="https://github.com/loithanhquan-ltq/gold-price" target="_blank">GitHub</a>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
