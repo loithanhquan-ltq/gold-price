@@ -5,6 +5,7 @@ GitHub Actions entrypoint — runs daily at 10:00 ICT (03:00 UTC).
 2. Update docs/data/prices.json (history kept for 90 days)
 3. Send HTML email via Gmail SMTP
 """
+import argparse
 import json
 import logging
 import os
@@ -141,8 +142,8 @@ def build_chart_b64(history: list) -> str | None:
             return None
 
         dates       = [date.fromisoformat(h["date"]) for h in recent]
-        sjc_prices  = [h.get("sjc_sell") for h in recent]
-        intl_prices = [h.get("intl_price") for h in recent]
+        sjc_prices  = [h.get("sjc_sell")   or float("nan") for h in recent]
+        intl_prices = [h.get("intl_price") or float("nan") for h in recent]
 
         BG, GRID = "#ffffff", "#e5e7eb"
         NAVY, GOLD, TEXT = "#1e3a5f", "#b45309", "#374151"
@@ -152,11 +153,12 @@ def build_chart_b64(history: list) -> str | None:
         ax1.set_facecolor("#f9fafb")
         ax2 = ax1.twinx()
 
-        has_sjc  = any(p for p in sjc_prices if p)
-        has_intl = any(p for p in intl_prices if p)
+        import math
+        has_sjc  = any(not math.isnan(p) for p in sjc_prices)
+        has_intl = any(not math.isnan(p) for p in intl_prices)
 
         if has_sjc:
-            vals = [p / 1_000_000 if p else None for p in sjc_prices]
+            vals = [p / 1_000_000 if not math.isnan(p) else float("nan") for p in sjc_prices]
             ax1.plot(dates, vals, color=NAVY, lw=2, marker="o", ms=4,
                      markerfacecolor=NAVY, label="SJC (triệu ₫/lượng)", zorder=3)
             ax1.fill_between(dates, vals, alpha=0.07, color=NAVY)
@@ -204,7 +206,7 @@ def build_chart_b64(history: list) -> str | None:
         buf.seek(0)
         return base64.b64encode(buf.read()).decode()
     except Exception as e:
-        logger.warning("Chart generation failed: %s", e)
+        logger.warning("Chart generation failed: %s", e, exc_info=True)
         return None
 
 
@@ -377,6 +379,25 @@ _CHART_ROW = """\
   </div>
 </td></tr>"""
 
+# Preview variant: data: URI so the HTML file is self-contained in a browser
+_CHART_ROW_PREVIEW = """\
+<tr><td style="padding:0;border-bottom:1px solid #e5e7eb;">
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+  <tr><td style="padding:9px 28px;">
+    <span style="font-size:10px;font-weight:700;color:#1e3a5f;
+                 text-transform:uppercase;letter-spacing:1.5px;">
+      7-Day Price Chart &mdash; SJC &amp; XAU/USD
+    </span>
+  </td></tr>
+  </table>
+  <div style="padding:16px 28px;">
+    <img src="data:image/png;base64,%%B64%%"
+         alt="7-day gold chart"
+         style="width:100%;max-width:544px;display:block;border:1px solid #e5e7eb;">
+  </div>
+</td></tr>"""
+
 EMAIL_TXT = """\
 BẢNG GIÁ VÀNG HÔM NAY — {date_str}
 =========================================
@@ -434,10 +455,11 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
     else:
         intl_block = _MISSING.replace("%%TITLE%%", "🌐 Vàng thế giới (XAU/USD)")
 
-    # Chart section — generate PNG bytes; embed as CID attachment (data: URIs are
-    # blocked by Gmail and most clients, but cid: references work universally)
+    # Chart: generate PNG bytes; attach as CID inline image
+    # (data: URIs are blocked by Gmail; cid: works in all major clients)
     chart_b64   = build_chart_b64(history)
     chart_bytes = base64.b64decode(chart_b64) if chart_b64 else None
+    logger.info("Chart generated: %s", f"{len(chart_bytes):,} bytes" if chart_bytes else "None — chart will be omitted")
     chart_block = _CHART_ROW if chart_bytes else ""
 
     html = (_EMAIL_HTML
@@ -461,9 +483,11 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
 
     recipients = [e.strip() for e in RECIPIENT_EMAIL.split(",") if e.strip()]
 
-    # multipart/related wraps the HTML + inline image so cid: references resolve
+    # Three-layer MIME nesting for maximum Gmail/Outlook/Apple Mail compatibility:
+    # multipart/mixed → multipart/related → multipart/alternative + image
+    msg_root    = MIMEMultipart("mixed")
     msg_related = MIMEMultipart("related")
-    msg_alt = MIMEMultipart("alternative")
+    msg_alt     = MIMEMultipart("alternative")
     msg_alt.attach(MIMEText(txt, "plain", "utf-8"))
     msg_alt.attach(MIMEText(html, "html", "utf-8"))
     msg_related.attach(msg_alt)
@@ -474,15 +498,68 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
         img.add_header("Content-Disposition", "inline", filename="chart.png")
         msg_related.attach(img)
 
-    msg_related["Subject"] = f"Giá Vàng Hôm Nay — {date_str}"
-    msg_related["From"]    = GMAIL_USER
-    msg_related["To"]      = ", ".join(recipients)
+    msg_root.attach(msg_related)
+    msg_root["Subject"] = f"Giá Vàng Hôm Nay — {date_str}"
+    msg_root["From"]    = GMAIL_USER
+    msg_root["To"]      = ", ".join(recipients)
 
     ctx = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
         s.login(GMAIL_USER, GMAIL_APP_PASSWORD)
-        s.sendmail(GMAIL_USER, recipients, msg_related.as_string())
+        s.sendmail(GMAIL_USER, recipients, msg_root.as_string())
     logger.info("Email sent to %s", ", ".join(recipients))
+
+
+# ---------------------------------------------------------------------------
+# Preview helper
+# ---------------------------------------------------------------------------
+
+def build_preview_html(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local) -> str:
+    """Return the full email HTML with the chart as a self-contained data: URI.
+    Suitable for writing to a file and opening in a browser — no MIME/CID needed."""
+    WEEKDAYS = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"]
+    date_str  = now_local.strftime("%d/%m/%Y")
+    send_time = now_local.strftime("%H:%M")
+    weekday   = WEEKDAYS[now_local.weekday()]
+
+    def _color(css): return {"up": "#15803d", "down": "#b91c1c"}.get(css, "#6b7280")
+    def _arrow(css): return {"up": "▲", "down": "▼"}.get(css, "—")
+
+    sjc_change, sjc_css = change_info(sjc.sell_price if sjc else None, prev_sjc_sell, fmt_vnd)
+    if sjc:
+        sjc_block = (_SJC_OK
+            .replace("%%SJC_BUY%%",    fmt_vnd(sjc.buy_price))
+            .replace("%%SJC_SELL%%",   fmt_vnd(sjc.sell_price))
+            .replace("%%SJC_SPREAD%%", fmt_vnd(sjc.sell_price - sjc.buy_price))
+            .replace("%%SJC_CC%%",     _color(sjc_css))
+            .replace("%%SJC_ARROW%%",  _arrow(sjc_css))
+            .replace("%%SJC_CHANGE%%", sjc_change))
+    else:
+        sjc_block = _MISSING.replace("%%TITLE%%", "SJC — Vàng Trong Nước")
+
+    intl_change, intl_css = change_info(intl.buy_price if intl else None, prev_intl_price, fmt_usd)
+    if intl:
+        intl_block = (_INTL_OK
+            .replace("%%INTL_PRICE%%",  fmt_usd(intl.buy_price))
+            .replace("%%INTL_HIGH%%",   fmt_usd(intl.high) if intl.high else "N/A")
+            .replace("%%INTL_LOW%%",    fmt_usd(intl.low) if intl.low else "N/A")
+            .replace("%%INTL_CC%%",     _color(intl_css))
+            .replace("%%INTL_ARROW%%",  _arrow(intl_css))
+            .replace("%%INTL_CHANGE%%", intl_change))
+    else:
+        intl_block = _MISSING.replace("%%TITLE%%", "XAU/USD — Vàng Thế Giới")
+
+    chart_b64   = build_chart_b64(history)
+    chart_block = (_CHART_ROW_PREVIEW.replace("%%B64%%", chart_b64)
+                   if chart_b64 else "")
+
+    return (_EMAIL_HTML
+        .replace("%%WEEKDAY%%",     weekday)
+        .replace("%%DATE%%",        date_str)
+        .replace("%%TIME%%",        send_time)
+        .replace("%%SJC_BLOCK%%",   sjc_block)
+        .replace("%%INTL_BLOCK%%",  intl_block)
+        .replace("%%CHART_BLOCK%%", chart_block))
 
 
 # ---------------------------------------------------------------------------
@@ -490,6 +567,11 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
 # ---------------------------------------------------------------------------
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--preview", action="store_true",
+                        help="Write email HTML to docs/preview.html instead of sending")
+    args = parser.parse_args()
+
     now = datetime.now(TZ)
     today = now.date()
     data = load_data()
@@ -538,6 +620,14 @@ def main():
     })
     save_data(data)
     logger.info("Saved prices.json for %s", today)
+
+    # Preview mode — write self-contained HTML and exit
+    if args.preview:
+        html = build_preview_html(sjc, intl, prev_sjc_sell, prev_intl_price, history, now)
+        out = Path(__file__).parent.parent / "docs" / "preview.html"
+        out.write_text(html, encoding="utf-8")
+        logger.info("Preview written to %s", out)
+        return
 
     # Send email
     if GMAIL_USER and GMAIL_APP_PASSWORD and RECIPIENT_EMAIL:

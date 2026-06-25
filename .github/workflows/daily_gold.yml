@@ -33,10 +33,13 @@ jobs:
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
         run: python scripts/fetch_and_update.py
 
-      - name: Commit updated prices.json
+      - name: Generate email preview
+        run: python scripts/fetch_and_update.py --preview
+
+      - name: Commit updated files
         run: |
           git config user.name  "gold-tracker[bot]"
           git config user.email "action@github.com"
-          git add docs/data/prices.json
+          git add docs/data/prices.json docs/preview.html
           git diff --staged --quiet || git commit -m "chore: gold prices $(date -u +'%Y-%m-%d')"
           git push
