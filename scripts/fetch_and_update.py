@@ -106,12 +106,12 @@ def build_chart_b64(history: list) -> str | None:
         sjc_prices  = [h.get("sjc_sell") for h in recent]
         intl_prices = [h.get("intl_price") for h in recent]
 
-        BG, CARD, GRID = "#0d1117", "#161b22", "#21262d"
-        GOLD, BLUE, TEXT = "#f59e0b", "#58a6ff", "#8b949e"
+        BG, GRID = "#ffffff", "#e5e7eb"
+        NAVY, GOLD, TEXT = "#1e3a5f", "#b45309", "#374151"
 
         fig, ax1 = plt.subplots(figsize=(10, 4.2))
         fig.patch.set_facecolor(BG)
-        ax1.set_facecolor(BG)
+        ax1.set_facecolor("#f9fafb")
         ax2 = ax1.twinx()
 
         has_sjc  = any(p for p in sjc_prices if p)
@@ -119,29 +119,31 @@ def build_chart_b64(history: list) -> str | None:
 
         if has_sjc:
             vals = [p / 1_000_000 if p else None for p in sjc_prices]
-            ax1.plot(dates, vals, color=GOLD, lw=2.5, marker="o", ms=5,
-                     markerfacecolor=GOLD, label="SJC (triệu ₫/lượng)", zorder=3)
-            ax1.fill_between(dates, vals, alpha=0.1, color=GOLD)
-            ax1.set_ylabel("SJC (triệu VND/lượng)", color=GOLD, fontsize=9)
-            ax1.tick_params(axis="y", labelcolor=GOLD, labelsize=8)
+            ax1.plot(dates, vals, color=NAVY, lw=2, marker="o", ms=4,
+                     markerfacecolor=NAVY, label="SJC (triệu ₫/lượng)", zorder=3)
+            ax1.fill_between(dates, vals, alpha=0.07, color=NAVY)
+            ax1.set_ylabel("SJC (triệu VND/lượng)", color=NAVY, fontsize=9)
+            ax1.tick_params(axis="y", labelcolor=NAVY, labelsize=8)
             ax1.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:.0f}"))
 
         if has_intl:
-            ax2.plot(dates, intl_prices, color=BLUE, lw=2.5, marker="o", ms=5,
-                     markerfacecolor=BLUE, label="XAU/USD", zorder=3)
-            ax2.fill_between(dates, intl_prices, alpha=0.08, color=BLUE)
-            ax2.set_ylabel("XAU/USD ($/troy oz)", color=BLUE, fontsize=9)
-            ax2.tick_params(axis="y", labelcolor=BLUE, labelsize=8)
+            ax2.plot(dates, intl_prices, color=GOLD, lw=2, marker="s", ms=4,
+                     markerfacecolor=GOLD, label="XAU/USD", zorder=3)
+            ax2.fill_between(dates, intl_prices, alpha=0.06, color=GOLD)
+            ax2.set_ylabel("XAU/USD ($/troy oz)", color=GOLD, fontsize=9)
+            ax2.tick_params(axis="y", labelcolor=GOLD, labelsize=8)
             ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x:,.0f}"))
 
         for ax in (ax1, ax2):
             ax.tick_params(axis="x", colors=TEXT, labelsize=8)
             for spine in ax.spines.values():
                 spine.set_color(GRID)
+                spine.set_linewidth(0.8)
 
         ax1.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
         ax1.xaxis.set_major_locator(mdates.DayLocator())
-        ax1.grid(axis="y", color=GRID, linestyle="--", lw=0.8, alpha=0.7)
+        ax1.grid(axis="y", color=GRID, linestyle="-", lw=0.8)
+        ax1.grid(axis="x", color=GRID, linestyle=":", lw=0.5)
         ax1.set_axisbelow(True)
         fig.autofmt_xdate(rotation=25, ha="right")
 
@@ -149,16 +151,17 @@ def build_chart_b64(history: list) -> str | None:
         lines2, labels2 = ax2.get_legend_handles_labels()
         if lines1 or lines2:
             ax1.legend(lines1 + lines2, labels1 + labels2,
-                       facecolor=CARD, edgecolor=GRID, labelcolor=TEXT,
-                       fontsize=9, loc="upper left", framealpha=0.95)
+                       facecolor=BG, edgecolor=GRID, labelcolor=TEXT,
+                       fontsize=9, loc="upper left", framealpha=1.0)
 
-        fig.suptitle("Diễn biến giá vàng — 7 ngày gần nhất",
-                     fontsize=11, fontweight="bold", color="#e2e8f0", y=1.01)
+        fig.suptitle("Gold Price — 7-Day Trend  |  SJC (VND) & XAU/USD",
+                     fontsize=10, fontweight="bold", color=TEXT, y=1.01,
+                     fontfamily="monospace")
         plt.tight_layout(pad=1.2)
 
         buf = io.BytesIO()
         plt.savefig(buf, format="png", dpi=130, bbox_inches="tight",
-                    facecolor=BG, edgecolor="none")
+                    facecolor=BG, edgecolor=GRID)
         plt.close(fig)
         buf.seek(0)
         return base64.b64encode(buf.read()).decode()
@@ -168,26 +171,39 @@ def build_chart_b64(history: list) -> str | None:
 
 
 # ---------------------------------------------------------------------------
-# Email templates — all inline styles, placeholders use %%NAME%% to avoid
-# any conflict with CSS braces or Python str.format()
+# Email templates — light scientific theme, inline styles, %%NAME%% placeholders
 # ---------------------------------------------------------------------------
 
 _EMAIL_HTML = """\
 <!DOCTYPE html>
 <html lang="vi">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#0d1117;font-family:'Segoe UI',Tahoma,Arial,Helvetica,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#0d1117">
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f4f6">
 <tr><td align="center" style="padding:24px 12px;">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #d1d5db;">
 
-  <tr><td style="background:linear-gradient(160deg,#1c0e00 0%,#3b1f00 50%,#1c0e00 100%);
-                 border-radius:16px 16px 0 0;padding:36px 32px 30px;text-align:center;
-                 border-bottom:2px solid #f59e0b;">
-    <div style="font-size:44px;line-height:1;margin-bottom:14px;">🥇</div>
-    <h1 style="margin:0 0 10px;color:#f59e0b;font-size:26px;font-weight:800;
-               letter-spacing:2px;text-transform:uppercase;">Bảng Giá Vàng Hôm Nay</h1>
-    <p style="margin:0;color:#d4a017;font-size:15px;">%%WEEKDAY%% &mdash; %%DATE%%</p>
+  <!-- HEADER -->
+  <tr><td style="background:#1e3a5f;padding:0;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="padding:22px 28px;">
+        <div style="font-size:11px;font-weight:700;color:#93c5fd;letter-spacing:2px;
+                    text-transform:uppercase;margin-bottom:6px;">GOLD MARKET REPORT</div>
+        <div style="font-size:22px;font-weight:700;color:#ffffff;line-height:1.2;">
+          Bảng Giá Vàng Hôm Nay
+        </div>
+        <div style="margin-top:6px;font-size:13px;color:#93c5fd;">
+          %%WEEKDAY%%, %%DATE%%
+        </div>
+      </td>
+      <td style="padding:22px 28px;text-align:right;vertical-align:top;">
+        <div style="font-size:10px;color:#64748b;margin-bottom:3px;">PHÁT HÀNH LÚC</div>
+        <div style="font-size:20px;font-weight:700;color:#fbbf24;font-family:monospace;">%%TIME%% ICT</div>
+      </td>
+    </tr>
+    </table>
+    <div style="height:3px;background:linear-gradient(90deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);"></div>
   </td></tr>
 
   %%SJC_BLOCK%%
@@ -196,14 +212,18 @@ _EMAIL_HTML = """\
 
   %%CHART_BLOCK%%
 
-  <tr><td style="background:#161b22;border-radius:0 0 16px 16px;padding:20px 32px;
-                 text-align:center;border-top:1px solid #30363d;">
-    <p style="margin:0 0 5px;color:#8b949e;font-size:12px;">
-      Gửi lúc %%TIME%% ICT &nbsp;&bull;&nbsp; Nguồn: giavang.doji.vn &amp; Yahoo Finance / CoinGecko
-    </p>
-    <p style="margin:0;color:#484f58;font-size:11px;font-style:italic;">
-      Thông tin chỉ mang tính tham khảo, không phải lời khuyên đầu tư.
-    </p>
+  <!-- FOOTER -->
+  <tr><td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:14px 28px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="font-size:11px;color:#9ca3af;">
+        Nguồn: giavang.doji.vn &nbsp;&bull;&nbsp; Yahoo Finance / CoinGecko (XAU/USD)
+      </td>
+      <td style="font-size:11px;color:#9ca3af;text-align:right;font-style:italic;">
+        Chỉ mang tính tham khảo
+      </td>
+    </tr>
+    </table>
   </td></tr>
 
 </table>
@@ -213,98 +233,110 @@ _EMAIL_HTML = """\
 </html>"""
 
 _SJC_OK = """\
-<tr><td style="background:#161b22;padding:24px 32px;border-bottom:1px solid #21262d;">
-  <p style="margin:0 0 16px;color:#f59e0b;font-size:11px;font-weight:700;
-            text-transform:uppercase;letter-spacing:2px;">🇻🇳 &nbsp;Vàng SJC trong nước</p>
+<tr><td style="padding:0;border-bottom:1px solid #e5e7eb;">
+  <!-- section label -->
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+  <tr><td style="padding:9px 28px;">
+    <span style="font-size:10px;font-weight:700;color:#1e3a5f;
+                 text-transform:uppercase;letter-spacing:1.5px;">
+      SJC &mdash; Vàng Trong Nước &nbsp;/&nbsp; VND per Lượng
+    </span>
+  </td></tr>
+  </table>
+  <!-- price row -->
   <table width="100%" cellpadding="0" cellspacing="0">
   <tr>
-    <td style="width:48%;vertical-align:top;padding-right:6px;">
-      <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
-                 padding:18px;text-align:center;">
-        <div style="color:#8b949e;font-size:10px;text-transform:uppercase;
-                   letter-spacing:1px;margin-bottom:8px;">Giá Mua</div>
-        <div style="color:#58a6ff;font-size:18px;font-weight:800;line-height:1.3;">%%SJC_BUY%%</div>
-        <div style="color:#484f58;font-size:10px;margin-top:5px;">VND / lượng</div>
-      </div>
+    <td style="width:33%;padding:18px 0 18px 28px;border-right:1px solid #e5e7eb;vertical-align:top;">
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Giá Mua (Bid)</div>
+      <div style="font-size:22px;font-weight:700;color:#1e3a5f;font-family:monospace;">%%SJC_BUY%%</div>
     </td>
-    <td style="width:4%;"></td>
-    <td style="width:48%;vertical-align:top;padding-left:6px;">
-      <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
-                 padding:18px;text-align:center;">
-        <div style="color:#8b949e;font-size:10px;text-transform:uppercase;
-                   letter-spacing:1px;margin-bottom:8px;">Giá Bán</div>
-        <div style="color:#f59e0b;font-size:18px;font-weight:800;line-height:1.3;">%%SJC_SELL%%</div>
-        <div style="color:#484f58;font-size:10px;margin-top:5px;">VND / lượng</div>
-      </div>
+    <td style="width:33%;padding:18px 0 18px 20px;border-right:1px solid #e5e7eb;vertical-align:top;">
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Giá Bán (Ask)</div>
+      <div style="font-size:22px;font-weight:700;color:#1e3a5f;font-family:monospace;">%%SJC_SELL%%</div>
+    </td>
+    <td style="width:34%;padding:18px 20px 18px 20px;vertical-align:top;">
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Spread</div>
+      <div style="font-size:16px;font-weight:700;color:#374151;font-family:monospace;">%%SJC_SPREAD%%</div>
     </td>
   </tr>
   </table>
-  <div style="margin-top:10px;padding:11px 16px;background:#0d1117;border:1px solid #21262d;
-             border-radius:8px;text-align:center;">
-    <span style="color:#8b949e;font-size:11px;">Chênh lệch mua/bán: </span>
-    <span style="color:#e2e8f0;font-size:13px;font-weight:700;">%%SJC_SPREAD%%</span>
-  </div>
-  <div style="margin-top:8px;padding:11px 16px;background:#0d1117;border:1px solid #21262d;
-             border-radius:8px;text-align:center;">
-    <span style="color:%%SJC_CC%%;font-size:15px;font-weight:700;">%%SJC_ARROW%% %%SJC_CHANGE%%</span>
-    <span style="color:#8b949e;font-size:11px;margin-left:6px;">so với hôm qua (giá bán)</span>
-  </div>
+  <!-- change row -->
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f9fafb;border-top:1px solid #e5e7eb;">
+  <tr>
+    <td style="padding:9px 28px;font-size:12px;color:#6b7280;">
+      Thay đổi so với phiên trước (Ask):&nbsp;
+      <strong style="color:%%SJC_CC%%;">%%SJC_ARROW%% %%SJC_CHANGE%%</strong>
+    </td>
+  </tr>
+  </table>
 </td></tr>"""
 
 _INTL_OK = """\
-<tr><td style="background:#161b22;padding:24px 32px;border-bottom:1px solid #21262d;">
-  <p style="margin:0 0 16px;color:#f59e0b;font-size:11px;font-weight:700;
-            text-transform:uppercase;letter-spacing:2px;">🌐 &nbsp;Vàng thế giới (XAU/USD)</p>
-  <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
-             padding:22px;text-align:center;margin-bottom:10px;">
-    <div style="color:#8b949e;font-size:10px;text-transform:uppercase;
-               letter-spacing:1px;margin-bottom:8px;">Giá Hiện Tại</div>
-    <div style="color:#f59e0b;font-size:30px;font-weight:800;line-height:1.2;">%%INTL_PRICE%%</div>
-    <div style="color:#484f58;font-size:10px;margin-top:5px;">USD / troy oz</div>
-  </div>
+<tr><td style="padding:0;border-bottom:1px solid #e5e7eb;">
+  <!-- section label -->
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+  <tr><td style="padding:9px 28px;">
+    <span style="font-size:10px;font-weight:700;color:#1e3a5f;
+                 text-transform:uppercase;letter-spacing:1.5px;">
+      XAU/USD &mdash; Vàng Thế Giới &nbsp;/&nbsp; USD per Troy Oz
+    </span>
+  </td></tr>
+  </table>
+  <!-- price row -->
   <table width="100%" cellpadding="0" cellspacing="0">
   <tr>
-    <td style="width:48%;vertical-align:top;padding-right:6px;">
-      <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
-                 padding:14px;text-align:center;">
-        <div style="color:#8b949e;font-size:10px;margin-bottom:6px;">↑ Cao nhất</div>
-        <div style="color:#3fb950;font-size:14px;font-weight:700;">%%INTL_HIGH%%</div>
-      </div>
+    <td style="width:33%;padding:18px 0 18px 28px;border-right:1px solid #e5e7eb;vertical-align:top;">
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Spot Price</div>
+      <div style="font-size:26px;font-weight:700;color:#b45309;font-family:monospace;">%%INTL_PRICE%%</div>
     </td>
-    <td style="width:4%;"></td>
-    <td style="width:48%;vertical-align:top;padding-left:6px;">
-      <div style="background:#0d1117;border:1px solid #21262d;border-radius:10px;
-                 padding:14px;text-align:center;">
-        <div style="color:#8b949e;font-size:10px;margin-bottom:6px;">↓ Thấp nhất</div>
-        <div style="color:#f85149;font-size:14px;font-weight:700;">%%INTL_LOW%%</div>
-      </div>
+    <td style="width:33%;padding:18px 0 18px 20px;border-right:1px solid #e5e7eb;vertical-align:top;">
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">High</div>
+      <div style="font-size:16px;font-weight:700;color:#15803d;font-family:monospace;">%%INTL_HIGH%%</div>
+      <div style="margin-top:12px;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Low</div>
+      <div style="font-size:16px;font-weight:700;color:#b91c1c;font-family:monospace;">%%INTL_LOW%%</div>
+    </td>
+    <td style="width:34%;padding:18px 20px 18px 20px;vertical-align:top;">
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Thay Đổi</div>
+      <div style="font-size:18px;font-weight:700;color:%%INTL_CC%%;font-family:monospace;">%%INTL_ARROW%% %%INTL_CHANGE%%</div>
+      <div style="margin-top:4px;font-size:10px;color:#9ca3af;">so với phiên trước</div>
     </td>
   </tr>
   </table>
-  <div style="margin-top:10px;padding:11px 16px;background:#0d1117;border:1px solid #21262d;
-             border-radius:8px;text-align:center;">
-    <span style="color:%%INTL_CC%%;font-size:15px;font-weight:700;">%%INTL_ARROW%% %%INTL_CHANGE%%</span>
-    <span style="color:#8b949e;font-size:11px;margin-left:6px;">so với hôm qua</span>
-  </div>
 </td></tr>"""
 
 _MISSING = """\
-<tr><td style="background:#161b22;padding:24px 32px;border-bottom:1px solid #21262d;">
-  <p style="margin:0 0 12px;color:#f59e0b;font-size:11px;font-weight:700;
-            text-transform:uppercase;letter-spacing:2px;">%%TITLE%%</p>
-  <div style="background:#1a0a0a;border:1px solid #5a1e1e;border-radius:8px;
-             padding:14px;text-align:center;color:#f85149;font-size:13px;">
-    ⚠ Không lấy được dữ liệu hôm nay.
+<tr><td style="padding:0;border-bottom:1px solid #e5e7eb;">
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+  <tr><td style="padding:9px 28px;">
+    <span style="font-size:10px;font-weight:700;color:#1e3a5f;
+                 text-transform:uppercase;letter-spacing:1.5px;">%%TITLE%%</span>
+  </td></tr>
+  </table>
+  <div style="padding:16px 28px;font-size:13px;color:#b91c1c;">
+    Không lấy được dữ liệu hôm nay.
   </div>
 </td></tr>"""
 
 _CHART_ROW = """\
-<tr><td style="background:#161b22;padding:20px 32px;border-bottom:1px solid #21262d;">
-  <p style="margin:0 0 14px;color:#f59e0b;font-size:11px;font-weight:700;
-            text-transform:uppercase;letter-spacing:2px;">📈 &nbsp;Diễn biến 7 ngày gần nhất</p>
-  <img src="data:image/png;base64,%%B64%%"
-       alt="7-day gold chart"
-       style="width:100%;max-width:536px;border-radius:10px;display:block;">
+<tr><td style="padding:0;border-bottom:1px solid #e5e7eb;">
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+  <tr><td style="padding:9px 28px;">
+    <span style="font-size:10px;font-weight:700;color:#1e3a5f;
+                 text-transform:uppercase;letter-spacing:1.5px;">
+      7-Day Price Chart &mdash; SJC &amp; XAU/USD
+    </span>
+  </td></tr>
+  </table>
+  <div style="padding:16px 28px;">
+    <img src="data:image/png;base64,%%B64%%"
+         alt="7-day gold chart"
+         style="width:100%;max-width:544px;display:block;border:1px solid #e5e7eb;">
+  </div>
 </td></tr>"""
 
 EMAIL_TXT = """\
