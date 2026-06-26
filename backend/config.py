@@ -9,7 +9,7 @@ GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "")
 RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL", "")
 
 API_TOKEN = os.getenv("API_TOKEN", "")
-SEND_HOUR = int(os.getenv("SEND_HOUR", "7"))
+SEND_HOUR = int(os.getenv("SEND_HOUR", "10"))
 TIMEZONE = os.getenv("TIMEZONE", "Asia/Ho_Chi_Minh")
 TZ = ZoneInfo(TIMEZONE)
 CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "600"))

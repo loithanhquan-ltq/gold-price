@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
-from backend.config import SEND_HOUR, TZ
+from backend.config import SEND_HOUR, TIMEZONE, TZ
 from backend.database import SessionLocal
 from backend.scrapers.sjc import fetch_sjc_price
 from backend.scrapers.international import fetch_international_price
@@ -10,7 +10,7 @@ from backend import repository
 from backend.email_service import send_daily_email
 
 logger = logging.getLogger(__name__)
-scheduler = BackgroundScheduler(timezone=TZ)
+scheduler = BackgroundScheduler(timezone=TIMEZONE)
 
 
 def _fetch_or_carry(db, today, fetch_fn, source: str) -> tuple[PriceResult | None, bool]:
