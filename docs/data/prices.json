@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-06-29T23:51:02.262498+07:00",
+  "updated_at": "2026-06-30T14:01:24.856852+07:00",
   "sjc": {
     "source": "SJC",
     "currency": "VND",
     "unit": "tael",
-    "buy_price": 145000000.0,
-    "sell_price": 148000000.0,
+    "buy_price": 144000000.0,
+    "sell_price": 147000000.0,
     "high": null,
     "low": null
   },
@@ -13,10 +13,10 @@
     "source": "INTERNATIONAL",
     "currency": "USD",
     "unit": "troy_oz",
-    "buy_price": 4011.48,
-    "sell_price": 4011.48,
-    "high": null,
-    "low": null
+    "buy_price": 4044.1,
+    "sell_price": 4044.1,
+    "high": 4047.8,
+    "low": 3955.4
   },
   "history": [
     {
@@ -114,6 +114,14 @@
       "intl_price": 4011.48,
       "intl_high": null,
       "intl_low": null
+    },
+    {
+      "date": "2026-06-30",
+      "sjc_buy": 144000000.0,
+      "sjc_sell": 147000000.0,
+      "intl_price": 4044.1,
+      "intl_high": 4047.8,
+      "intl_low": 3955.4
     }
   ]
 }
