@@ -139,11 +139,24 @@ def build_chart_b64(history: list) -> str | None:
         import matplotlib.transforms as mtransforms
         import numpy as np
 
-        recent = history[-7:]
+        if not history:
+            return None
+
+        # Window by calendar date, not entry count: if the daily job misses days the
+        # last 7 entries can span weeks, which silently turns a "7-day" chart into a
+        # month and crushes the date axis. Fall back to the last 7 entries only when
+        # the true window is too sparse to draw a line.
+        latest = max(date.fromisoformat(h["date"]) for h in history)
+        cutoff = latest - timedelta(days=6)
+        recent = [h for h in history if date.fromisoformat(h["date"]) >= cutoff]
+        if len(recent) < 3:
+            recent = history[-7:]
         if not recent:
             return None
 
         dates       = [date.fromisoformat(h["date"]) for h in recent]
+        # Inclusive day count so a full window reads "7d", matching the section header
+        span_days   = (dates[-1] - dates[0]).days + 1
         sjc_prices  = [h.get("sjc_sell")   or float("nan") for h in recent]
         intl_prices = [h.get("intl_price") or float("nan") for h in recent]
 
@@ -222,7 +235,7 @@ def build_chart_b64(history: list) -> str | None:
             _trans_sjc = mtransforms.blended_transform_factory(
                 ax_sjc.transAxes, ax_sjc.transData)
             ax_sjc.text(
-                0.02, sjc_base, f"Open: {sjc_base:.0f}",
+                0.02, sjc_base, f"Open: {sjc_base:.1f}",
                 transform=_trans_sjc,
                 fontsize=7, color=NAVY, alpha=0.65, va="center", ha="left",
                 bbox=dict(facecolor=BG, edgecolor="none", alpha=0.85, pad=1.5),
@@ -230,7 +243,9 @@ def build_chart_b64(history: list) -> str | None:
 
             # #6 — last-price label above dot with leader line
             ax_sjc.annotate(
-                f"{sjc_vals[-1]:.0f} tr.₫",
+                # "triệu" spelled out: DejaVu Sans (matplotlib's default) renders ₫ as a
+                # mangled "d" at small bold sizes. The HTML around the chart uses ₫ fine.
+                f"{sjc_vals[-1]:.0f} triệu",
                 xy=(sjc_dates[-1], sjc_vals[-1]),
                 xytext=(0, 9), textcoords="offset points",
                 fontsize=9, color=NAVY, fontweight="bold",
@@ -242,8 +257,10 @@ def build_chart_b64(history: list) -> str | None:
                               fontsize=10, labelpad=8)
             ax_sjc.tick_params(axis="y", labelcolor=TICK_CLR, labelsize=9,
                                length=3, width=0.6)
+            # One decimal: SJC moves in ~0.5M steps, so .0f collapses several ticks
+            # onto the same label (148, 148, 148, 147).
             ax_sjc.yaxis.set_major_formatter(
-                mticker.FuncFormatter(lambda x, _: f"{x:.0f}"))
+                mticker.FuncFormatter(lambda x, _: f"{x:.1f}"))
             _style_axes(ax_sjc)
 
             # #7 — × markers for missing SJC readings (blended transform: x=data, y=axes)
@@ -292,7 +309,7 @@ def build_chart_b64(history: list) -> str | None:
                 badge_bg    = "#f0fdf4" if ret >= 0 else "#fef2f2"
                 badge_color = "#15803d" if ret >= 0 else "#b91c1c"
                 ax_intl.text(
-                    0.98, 0.95, f"{sign}{ret:.2f}% (7d)",
+                    0.98, 0.95, f"{sign}{ret:.2f}% ({span_days}d)",
                     transform=ax_intl.transAxes,
                     fontsize=9, fontweight="bold", color=badge_color,
                     ha="right", va="top",
@@ -310,7 +327,9 @@ def build_chart_b64(history: list) -> str | None:
 
         # --- Date axis on bottom panel ---
         ax_intl.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
-        ax_intl.xaxis.set_major_locator(mdates.DayLocator())
+        # DayLocator emits one tick per day, which overlaps into an unreadable smear
+        # as soon as the window is wider than ~10 days.
+        ax_intl.xaxis.set_major_locator(mdates.AutoDateLocator(minticks=3, maxticks=7))
         ax_intl.tick_params(axis="x", colors=TICK_CLR, labelsize=9,
                             length=3, width=0.6)
         plt.setp(ax_intl.xaxis.get_majorticklabels(), rotation=20, ha="right")

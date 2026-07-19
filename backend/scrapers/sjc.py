@@ -1,58 +1,56 @@
-import logging
 import requests
-from bs4 import BeautifulSoup
 from backend.scrapers.base import PriceResult, network_retry
 
-logger = logging.getLogger(__name__)
+# PNJ's storefront API is served from Cloudflare's global anycast CDN, so it stays
+# reachable from GitHub Actions runners outside Vietnam. It publishes the official
+# SJC retail price (the same government-set price every retailer shows).
+# Prices are strings in "nghìn/lượng" (thousands VND per tael): "146.600" → 146,600,000 VND/tael.
+PNJ_URL = "https://edge-cf-api.pnj.io/ecom-frontend/v3/get-gold-price"
 
-# DOJI's gold price sub-site is publicly accessible (no Cloudflare / no auth).
-# It displays the official SJC retail price (same government-set price shown by all retailers).
-# Prices are in "nghìn/chỉ" (thousands VND per chỉ). 1 tael = 10 chỉ, so multiply by 10,000
-# to convert to VND per tael.
-DOJI_URL = "https://giavang.doji.vn"
-HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) GoldTracker/1.0"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) GoldTracker/1.0",
+    "Accept": "application/json",
+}
 # SJC.com.vn itself is behind Cloudflare with an interactive JS challenge and cannot be
-# scraped with plain HTTP requests.
+# scraped with plain HTTP requests. giavang.doji.vn was the original source, but on
+# 2026-07-16 it went JS-only — it now serves no price table to plain HTTP clients, so it
+# was dropped as a fallback rather than left in place failing silently.
+
+SANE_MIN_VND_PER_TAEL = 10_000_000
+SANE_MAX_VND_PER_TAEL = 500_000_000
 
 
-def _parse_doji_html(html: str) -> tuple[float, float]:
-    """Return (buy_price, sell_price) in VND per tael from DOJI's gold page HTML."""
-    soup = BeautifulSoup(html, "html.parser")
-    for table in soup.find_all("table"):
-        rows = table.find_all("tr")
-        if not rows:
-            continue
-        header_cells = rows[0].find_all(["th", "td"])
-        header_texts = [c.get_text(strip=True) for c in header_cells]
-        # Target the table with "Loại" header (clean numeric data, no unit suffix)
-        if "Loại" not in header_texts:
-            continue
-        for row in rows[1:]:
-            cells = row.find_all("td")
-            if len(cells) < 3:
+def _vnd_per_tael(raw: str, multiplier: int) -> float:
+    """Convert a Vietnamese-formatted price string to VND per tael."""
+    return float(str(raw).replace(".", "").replace(",", "").strip()) * multiplier
+
+
+def _check_range(buy: float, source: str) -> None:
+    if not (SANE_MIN_VND_PER_TAEL < buy < SANE_MAX_VND_PER_TAEL):
+        raise ValueError(f"{source} buy price out of expected range: {buy}")
+
+
+def _parse_pnj_json(data: dict) -> tuple[float, float]:
+    """Return (buy_price, sell_price) in VND per tael from PNJ's gold price API."""
+    for location in data.get("locations", []):
+        for item in location.get("gold_type", []):
+            if item.get("name", "").strip().upper() != "SJC":
                 continue
-            label = cells[0].get_text(strip=True)
-            if "SJC" not in label or "Bán Lẻ" not in label:
-                continue
-            buy_raw = cells[1].get_text(strip=True).replace(",", "").replace(".", "")
-            sell_raw = cells[2].get_text(strip=True).replace(",", "").replace(".", "")
-            # Unit: nghìn/chỉ — multiply × 10,000 to get VND per tael (lượng)
-            buy = float(buy_raw) * 10_000
-            sell = float(sell_raw) * 10_000
-            if not (10_000_000 < buy < 500_000_000):  # sanity: 10M–500M VND/tael
-                raise ValueError(f"SJC buy price out of expected range: {buy}")
+            buy = _vnd_per_tael(item.get("gia_mua", "0"), 1_000)
+            sell = _vnd_per_tael(item.get("gia_ban", "0"), 1_000)
+            _check_range(buy, "SJC")
             return buy, sell
-    raise ValueError("SJC row not found in DOJI table — page structure may have changed")
+    raise ValueError("SJC gold_type not found in PNJ response — API shape may have changed")
 
 
 @network_retry
-def _fetch_doji() -> PriceResult:
-    resp = requests.get(DOJI_URL, timeout=10, headers=HEADERS)
+def _fetch_pnj() -> PriceResult:
+    resp = requests.get(PNJ_URL, timeout=15, headers=HEADERS)
     resp.raise_for_status()
-    buy, sell = _parse_doji_html(resp.text)
+    buy, sell = _parse_pnj_json(resp.json())
     return PriceResult("SJC", "VND", "tael", buy_price=buy, sell_price=sell)
 
 
 def fetch_sjc_price() -> PriceResult:
-    """Fetch SJC retail gold price (VND per tael) from DOJI's public gold price page."""
-    return _fetch_doji()
+    """Fetch SJC retail gold price (VND per tael) from PNJ."""
+    return _fetch_pnj()
