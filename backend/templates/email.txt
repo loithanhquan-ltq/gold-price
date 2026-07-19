@@ -21,4 +21,4 @@ BẢNG GIÁ VÀNG HÔM NAY — {{ date_str }}
 {% endif %}
 
 --
-Gửi lúc {{ send_time }} | Nguồn: giavang.doji.vn & Yahoo Finance (GC=F)
+Gửi lúc {{ send_time }} | Nguồn: pnj.com.vn & Yahoo Finance (GC=F)

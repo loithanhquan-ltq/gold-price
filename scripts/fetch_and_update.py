@@ -411,7 +411,7 @@ _EMAIL_HTML = """\
     <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td style="font-size:11px;color:#9ca3af;">
-        Nguồn: giavang.doji.vn &nbsp;&bull;&nbsp; Yahoo Finance / CoinGecko (XAU/USD)
+        Nguồn: pnj.com.vn &nbsp;&bull;&nbsp; Yahoo Finance / CoinGecko (XAU/USD)
       </td>
       <td style="font-size:11px;color:#9ca3af;text-align:right;font-style:italic;">
         Chỉ mang tính tham khảo
@@ -569,7 +569,7 @@ VÀNG THẾ GIỚI (USD / Troy oz)
   Thay đổi  : {intl_change}
 
 --
-Gửi lúc {send_time} ICT | Nguồn: giavang.doji.vn & Yahoo Finance / CoinGecko
+Gửi lúc {send_time} ICT | Nguồn: pnj.com.vn & Yahoo Finance / CoinGecko
 """
 
 
