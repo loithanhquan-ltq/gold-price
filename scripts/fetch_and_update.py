@@ -661,7 +661,10 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
         s.login(GMAIL_USER, GMAIL_APP_PASSWORD)
         s.sendmail(GMAIL_USER, recipients, msg_root.as_string())
-    logger.info("Email sent to %s", ", ".join(recipients))
+    # Count only, never the addresses: GitHub masks RECIPIENT_EMAIL as one exact string,
+    # so a joined list leaks every address in clear text into the Actions log — which
+    # defeats the BCC-style envelope above.
+    logger.info("Email sent to %d recipient(s)", len(recipients))
 
 
 # ---------------------------------------------------------------------------
