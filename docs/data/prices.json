@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-07-18T12:34:20.041735+07:00",
+  "updated_at": "2026-07-19T13:06:05.564572+07:00",
   "sjc": null,
   "international": {
     "source": "INTERNATIONAL",
     "currency": "USD",
     "unit": "troy_oz",
-    "buy_price": 4008.58,
-    "sell_price": 4008.58,
+    "buy_price": 4009.9,
+    "sell_price": 4009.9,
     "high": null,
     "low": null
   },
@@ -256,6 +256,14 @@
       "sjc_buy": null,
       "sjc_sell": null,
       "intl_price": 4008.58,
+      "intl_high": null,
+      "intl_low": null
+    },
+    {
+      "date": "2026-07-19",
+      "sjc_buy": null,
+      "sjc_sell": null,
+      "intl_price": 4009.9,
       "intl_high": null,
       "intl_low": null
     }
