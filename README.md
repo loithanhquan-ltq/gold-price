@@ -16,7 +16,7 @@
 
 ## Overview
 
-**Theo Dõi Giá Vàng** is a self-hosted gold price tracker that monitors Vietnamese SJC gold (via DOJI) and international XAU/USD (via Yahoo Finance) in real time. It persists daily prices in a local database, serves a live web dashboard, and delivers a formatted HTML email report every morning — automatically.
+**Theo Dõi Giá Vàng** is a self-hosted gold price tracker that monitors Vietnamese SJC gold (via PNJ) and international XAU/USD (via Yahoo Finance/CoinGecko) in real time, plus the daily EUR→VND reference rate. It persists daily prices in a local database, serves a live web dashboard, and delivers a formatted HTML email report every morning — automatically.
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -36,8 +36,9 @@
 
 ## Features
 
-- **Live scraping** — SJC prices from DOJI (HTML), international XAU/USD from Yahoo Finance with CoinGecko fallback
-- **Daily email reports** — Multi-part HTML + plain-text emails with price changes and 7-day chart, sent silently via BCC so recipients stay private
+- **Live scraping** — SJC prices from PNJ's JSON API, international XAU/USD from Yahoo Finance with CoinGecko fallback
+- **EUR/VND tracking** — Daily mid-market reference rate from ExchangeRate-API, with a jsDelivr fallback
+- **Daily email reports** — Multi-part HTML + plain-text emails with price changes, the EUR→VND rate, and a 7-day chart, sent silently via BCC so recipients stay private
 - **Stale-data fallback** — If a fetch fails, the previous day's price is carried forward and flagged as stale
 - **Persistent history** — SQLite database with upsert logic; 90-day rolling JSON exported to `docs/data/prices.json`
 - **Web dashboard** — Responsive dark-themed SPA with auto-refresh every 5 minutes
@@ -163,8 +164,8 @@ Copy `.env.example` to `.env` and fill in the values.
 
 ```
 ┌─────────────┐     scrape      ┌──────────────────┐
-│  DOJI       │ ──────────────► │                  │
-│  (SJC HTML) │                 │  backend/        │
+│  PNJ        │ ──────────────► │                  │
+│  (SJC JSON) │                 │  backend/        │
 └─────────────┘                 │  scrapers/       │
                                 │                  │
 ┌─────────────┐     API call    │  sjc.py          │
@@ -209,7 +210,8 @@ gold-price/
 │   ├── logging_config.py    # Rotating file + console logging
 │   ├── scrapers/
 │   │   ├── base.py          # PriceResult dataclass + retry wrapper
-│   │   ├── sjc.py           # DOJI HTML scraper
+│   │   ├── sjc.py           # PNJ JSON scraper
+│   │   ├── fx.py            # EUR/VND reference rate
 │   │   └── international.py # Yahoo Finance / CoinGecko
 │   └── templates/
 │       ├── email.html       # Jinja2 HTML email template

@@ -26,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backend.scrapers.sjc import fetch_sjc_price
 from backend.scrapers.international import fetch_international_price
+from backend.scrapers.fx import fetch_eur_vnd_rate
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -46,7 +47,8 @@ RECIPIENT_EMAIL = os.environ.get("RECIPIENT_EMAIL", "")
 def load_data() -> dict:
     if DATA_FILE.exists():
         return json.loads(DATA_FILE.read_text(encoding="utf-8"))
-    return {"updated_at": None, "sjc": None, "international": None, "history": []}
+    return {"updated_at": None, "sjc": None, "international": None,
+            "eur_vnd": None, "history": []}
 
 
 def save_data(data: dict):
@@ -404,6 +406,8 @@ _EMAIL_HTML = """\
 
   %%INTL_BLOCK%%
 
+  %%EUR_BLOCK%%
+
   %%CHART_BLOCK%%
 
   <!-- FOOTER -->
@@ -412,6 +416,7 @@ _EMAIL_HTML = """\
     <tr>
       <td style="font-size:11px;color:#9ca3af;">
         Nguồn: pnj.com.vn &nbsp;&bull;&nbsp; Yahoo Finance / CoinGecko (XAU/USD)
+        &nbsp;&bull;&nbsp; ExchangeRate-API / jsDelivr (EUR/VND)
       </td>
       <td style="font-size:11px;color:#9ca3af;text-align:right;font-style:italic;">
         Chỉ mang tính tham khảo
@@ -501,6 +506,34 @@ _INTL_OK = """\
   </table>
 </td></tr>"""
 
+_EUR_OK = """\
+<tr><td style="padding:0;border-bottom:1px solid #e5e7eb;">
+  <!-- section label -->
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+  <tr><td style="padding:9px 28px;">
+    <span style="font-size:10px;font-weight:700;color:#1e3a5f;
+                 text-transform:uppercase;letter-spacing:1.5px;">
+      EUR/VND &mdash; Tỷ Giá Euro &nbsp;/&nbsp; VND per EUR
+    </span>
+  </td></tr>
+  </table>
+  <!-- price row -->
+  <table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="width:50%;padding:18px 0 18px 28px;border-right:1px solid #e5e7eb;vertical-align:top;">
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">1 EUR</div>
+      <div style="font-size:26px;font-weight:700;color:#1e3a5f;font-family:monospace;">%%EUR_RATE%%</div>
+    </td>
+    <td style="width:50%;padding:18px 20px 18px 20px;vertical-align:top;">
+      <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Thay Đổi</div>
+      <div style="font-size:18px;font-weight:700;color:%%EUR_CC%%;font-family:monospace;">%%EUR_ARROW%% %%EUR_CHANGE%%</div>
+      <div style="margin-top:4px;font-size:10px;color:#9ca3af;">so với phiên trước</div>
+    </td>
+  </tr>
+  </table>
+</td></tr>"""
+
 _MISSING = """\
 <tr><td style="padding:0;border-bottom:1px solid #e5e7eb;">
   <table width="100%" cellpadding="0" cellspacing="0"
@@ -568,12 +601,18 @@ VÀNG THẾ GIỚI (USD / Troy oz)
   Thấp nhất : {intl_low}
   Thay đổi  : {intl_change}
 
+TỶ GIÁ EUR/VND (VND / EUR)
+  1 EUR     : {eur_rate}
+  Thay đổi  : {eur_change}
+
 --
 Gửi lúc {send_time} ICT | Nguồn: pnj.com.vn & Yahoo Finance / CoinGecko
+& ExchangeRate-API / jsDelivr
 """
 
 
-def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
+def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local,
+               *, eur_vnd, prev_eur_vnd):
     WEEKDAYS = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"]
     date_str  = now_local.strftime("%d/%m/%Y")
     send_time = now_local.strftime("%H:%M")
@@ -609,6 +648,18 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
     else:
         intl_block = _MISSING.replace("%%TITLE%%", "🌐 Vàng thế giới (XAU/USD)")
 
+    # EUR/VND section
+    eur_change, eur_css = change_info(
+        eur_vnd.buy_price if eur_vnd else None, prev_eur_vnd, fmt_vnd)
+    if eur_vnd:
+        eur_block = (_EUR_OK
+            .replace("%%EUR_RATE%%",   fmt_vnd(eur_vnd.buy_price))
+            .replace("%%EUR_CC%%",     _color(eur_css))
+            .replace("%%EUR_ARROW%%",  _arrow(eur_css))
+            .replace("%%EUR_CHANGE%%", eur_change))
+    else:
+        eur_block = _MISSING.replace("%%TITLE%%", "🇪🇺 Tỷ giá EUR/VND")
+
     # Chart: generate PNG bytes; attach as CID inline image
     # (data: URIs are blocked by Gmail; cid: works in all major clients)
     chart_b64   = build_chart_b64(history)
@@ -622,6 +673,7 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
         .replace("%%TIME%%",        send_time)
         .replace("%%SJC_BLOCK%%",   sjc_block)
         .replace("%%INTL_BLOCK%%",  intl_block)
+        .replace("%%EUR_BLOCK%%",   eur_block)
         .replace("%%CHART_BLOCK%%", chart_block))
 
     txt = EMAIL_TXT.format(
@@ -633,7 +685,9 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
         intl_price=fmt_usd(intl.buy_price if intl else None),
         intl_high=fmt_usd(intl.high if intl else None),
         intl_low=fmt_usd(intl.low if intl else None),
-        intl_change=intl_change)
+        intl_change=intl_change,
+        eur_rate=fmt_vnd(eur_vnd.buy_price if eur_vnd else None),
+        eur_change=eur_change)
 
     recipients = [e.strip() for e in RECIPIENT_EMAIL.split(",") if e.strip()]
 
@@ -671,7 +725,8 @@ def send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local):
 # Preview helper
 # ---------------------------------------------------------------------------
 
-def build_preview_html(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local) -> str:
+def build_preview_html(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_local,
+                       *, eur_vnd, prev_eur_vnd) -> str:
     """Return the full email HTML with the chart as a self-contained data: URI.
     Suitable for writing to a file and opening in a browser — no MIME/CID needed."""
     WEEKDAYS = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"]
@@ -706,6 +761,17 @@ def build_preview_html(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_l
     else:
         intl_block = _MISSING.replace("%%TITLE%%", "XAU/USD — Vàng Thế Giới")
 
+    eur_change, eur_css = change_info(
+        eur_vnd.buy_price if eur_vnd else None, prev_eur_vnd, fmt_vnd)
+    if eur_vnd:
+        eur_block = (_EUR_OK
+            .replace("%%EUR_RATE%%",   fmt_vnd(eur_vnd.buy_price))
+            .replace("%%EUR_CC%%",     _color(eur_css))
+            .replace("%%EUR_ARROW%%",  _arrow(eur_css))
+            .replace("%%EUR_CHANGE%%", eur_change))
+    else:
+        eur_block = _MISSING.replace("%%TITLE%%", "EUR/VND — Tỷ Giá Euro")
+
     chart_b64   = build_chart_b64(history)
     chart_block = (_CHART_ROW_PREVIEW.replace("%%B64%%", chart_b64)
                    if chart_b64 else "")
@@ -716,6 +782,7 @@ def build_preview_html(sjc, intl, prev_sjc_sell, prev_intl_price, history, now_l
         .replace("%%TIME%%",        send_time)
         .replace("%%SJC_BLOCK%%",   sjc_block)
         .replace("%%INTL_BLOCK%%",  intl_block)
+        .replace("%%EUR_BLOCK%%",   eur_block)
         .replace("%%CHART_BLOCK%%", chart_block))
 
 
@@ -743,9 +810,10 @@ def main():
     prev = yesterday_entries[-1] if yesterday_entries else {}
     prev_sjc_sell    = prev.get("sjc_sell")
     prev_intl_price  = prev.get("intl_price")
+    prev_eur_vnd     = prev.get("eur_vnd")
 
     # Fetch today's prices
-    sjc = intl = None
+    sjc = intl = eur_vnd = None
     try:
         sjc = fetch_sjc_price()
         logger.info("SJC: buy=%s sell=%s VND/tael", sjc.buy_price, sjc.sell_price)
@@ -758,6 +826,12 @@ def main():
     except Exception as e:
         logger.error("International fetch failed: %s", e)
 
+    try:
+        eur_vnd = fetch_eur_vnd_rate()
+        logger.info("EUR/VND: %.0f VND per EUR", eur_vnd.buy_price)
+    except Exception as e:
+        logger.error("EUR/VND fetch failed: %s", e)
+
     # Update JSON
     today_entry = {
         "date": str(today),
@@ -766,6 +840,7 @@ def main():
         "intl_price": intl.buy_price if intl else None,
         "intl_high":  intl.high if intl else None,
         "intl_low":   intl.low if intl else None,
+        "eur_vnd":    round(eur_vnd.buy_price, 2) if eur_vnd else None,
     }
     history = upsert_history(history, today_entry)
 
@@ -773,6 +848,7 @@ def main():
         "updated_at":    now.isoformat(),
         "sjc":           sjc.as_dict() if sjc else None,
         "international": intl.as_dict() if intl else None,
+        "eur_vnd":       eur_vnd.as_dict() if eur_vnd else None,
         "history":       history,
     })
     save_data(data)
@@ -780,7 +856,8 @@ def main():
 
     # Preview mode — write self-contained HTML and exit
     if args.preview:
-        html = build_preview_html(sjc, intl, prev_sjc_sell, prev_intl_price, history, now)
+        html = build_preview_html(sjc, intl, prev_sjc_sell, prev_intl_price, history, now,
+                                  eur_vnd=eur_vnd, prev_eur_vnd=prev_eur_vnd)
         out = Path(__file__).parent.parent / "docs" / "preview.html"
         out.write_text(html, encoding="utf-8")
         logger.info("Preview written to %s", out)
@@ -789,7 +866,8 @@ def main():
     # Send email
     if GMAIL_USER and GMAIL_APP_PASSWORD and RECIPIENT_EMAIL:
         try:
-            send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now)
+            send_email(sjc, intl, prev_sjc_sell, prev_intl_price, history, now,
+                       eur_vnd=eur_vnd, prev_eur_vnd=prev_eur_vnd)
         except Exception as e:
             logger.error("Email send failed: %s", e)
     else:

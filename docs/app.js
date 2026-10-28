@@ -49,6 +49,16 @@ function renderIntl(intl, history) {
   if (info) { el.textContent = info.text; el.className = 'change ' + info.cls; }
 }
 
+function renderEUR(eur, history) {
+  document.getElementById('eur-rate').textContent = fmtVND(eur?.buy_price);
+
+  const prev = history.length >= 2 ? history[history.length - 2] : null;
+  const info = changeLabel(eur?.buy_price, prev?.eur_vnd, fmtVND);
+  const el   = document.getElementById('eur-change');
+  el.textContent = info ? info.text : 'N/A';
+  el.className = 'change' + (info ? ' ' + info.cls : '');
+}
+
 function renderChart(history) {
   const recent = history.slice(-7);
   const labels = recent.map(h => {
@@ -115,6 +125,7 @@ async function load() {
 
     renderSJC(data.sjc, history);
     renderIntl(data.international, history);
+    renderEUR(data.eur_vnd, history);
     if (history.length) renderChart(history);
 
     const updatedAt = data.updated_at
